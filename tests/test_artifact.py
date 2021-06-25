@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `spade_artifact` package."""
+from asynctest import Mock, CoroutineMock
 from spade.message import Message
 
 from tests.factories import MockedConnectedArtifactFactory, MockedConnectedArtifact
@@ -16,6 +17,8 @@ def test_run():
 def test_send_msg():
     class A(MockedConnectedArtifact):
         async def run(self):
+            self.client = Mock()
+            self.client.send = CoroutineMock()
             msg = Message()
             await self.send(msg)
 
@@ -29,6 +32,8 @@ def test_send_msg():
 def test_receive():
     class A(MockedConnectedArtifact):
         async def run(self):
+            self.client = Mock()
+            self.client.send = CoroutineMock()
             self.msg = await self.receive(1)
 
     artifact = A(jid="fakejid", password="fakesecret")

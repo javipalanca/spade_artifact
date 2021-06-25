@@ -22,14 +22,6 @@ class MockedConnectedArtifact(Artifact):
         self.status = status
         self.priority = priority
 
-    async def _async_start(self, auto_register=True):
-        await self._hook_plugin_before_connection()
-        self.client = Mock()
-        self.client.send = CoroutineMock()
-        await self._hook_plugin_after_connection()
-        await self.setup()
-        self._alive.set()
-
     def mock_presence(self):
         show = self.show if self.show is not None else PresenceShow.NONE
         available = self.available if self.available is not None else False
