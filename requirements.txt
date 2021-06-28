@@ -1,2 +1,2 @@
-spade>=3.1.6
-spade_pubsub
+spade>=3.1.7
+spade_pubsub>=0.1.2
