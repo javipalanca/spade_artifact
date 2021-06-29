@@ -9,7 +9,7 @@ from typing import Union
 import aiosasl
 import aioxmpp
 from aiosasl import AuthenticationFailure
-from aioxmpp import ibr
+from aioxmpp import ibr, XMPPCancelError, XMPPAuthError
 from aioxmpp.dispatcher import SimpleMessageDispatcher
 from loguru import logger
 from spade.message import Message
@@ -18,7 +18,7 @@ from spade_pubsub import PubSubMixin
 
 
 class Artifact(PubSubMixin):
-    def __init__(self, jid, password, verify_security=False):
+    def __init__(self, jid, password, pubsub_server=None, verify_security=False):
         """
         Creates an artifact
 
@@ -30,6 +30,10 @@ class Artifact(PubSubMixin):
         self.jid = aioxmpp.JID.fromstr(jid)
         self.password = password
         self.verify_security = verify_security
+
+        self.pubsub_server = (
+            pubsub_server if pubsub_server else f"pubsub.{self.jid.domain}"
+        )
 
         self._values = {}
 
@@ -110,20 +114,36 @@ class Artifact(PubSubMixin):
 
         await self._hook_plugin_after_connection()
 
+        # pubsub initialization
+        try:
+            self._node = self.jid.bare()
+            await self.pubsub.create(self.pubsub_server, f"{self._node}")
+        except XMPPCancelError as e:
+            logger.info(f"Node {self._node} already registered")
+        except XMPPAuthError as e:
+            logger.error(f"Artifact {self._node} is not allowed to publish properties.")
+            raise e
+
         await self.setup()
         self._alive.set()
 
-    async def _hook_plugin_before_connection(self):
+    async def _hook_plugin_before_connection(self, *args, **kwargs):
         """
         Overload this method to hook a plugin before connetion is done
         """
-        pass
+        try:
+            await super()._hook_plugin_before_connection(*args, **kwargs)
+        except AttributeError:
+            logger.debug("_hook_plugin_before_connection is undefined")
 
-    async def _hook_plugin_after_connection(self):
+    async def _hook_plugin_after_connection(self, *args, **kwargs):
         """
         Overload this method to hook a plugin after connetion is done
         """
-        pass
+        try:
+            await super()._hook_plugin_after_connection(*args, **kwargs)
+        except AttributeError:
+            logger.debug("_hook_plugin_after_connection is undefined")
 
     async def _async_connect(self):  # pragma: no cover
         """ connect and authenticate to the XMPP server. Async mode. """
@@ -288,3 +308,6 @@ class Artifact(PubSubMixin):
 
         """
         return self.queue.qsize()
+
+    async def publish(self, content: str) -> None:
+        await self.pubsub.publish(self.pubsub_server, self._node, content)

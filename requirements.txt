@@ -1,2 +1,3 @@
 spade>=3.1.7
-spade_pubsub>=0.1.2
+spade_pubsub>=0.1.3
+loguru==0.5.3

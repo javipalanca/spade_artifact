@@ -8,3 +8,4 @@ __version__ = "0.1.0"
 
 
 from .artifact import Artifact
+from .agent import ArtifactMixin
