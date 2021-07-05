@@ -26,7 +26,10 @@ Plugin for SPADE 3 to develop artifacts.
 Features
 --------
 
-* TODO
+* Focus on observable properties (based on PubSub).
+* Presence notifiaction support.
+* Artifact class.
+* ArtifactMixin for SPADE agents.
 
 Credits
 -------

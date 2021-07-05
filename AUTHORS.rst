@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Javi Palanca <jpalanca@gmail.com>
+* Javi Palanca <jpalanca @ gmail.com>
 
 Contributors
 ------------
