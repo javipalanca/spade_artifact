@@ -10,7 +10,9 @@ from tests.factories import MockedConnectedArtifactFactory, MockedConnectedArtif
 
 def test_run():
     artifact = MockedConnectedArtifactFactory()
-    artifact.start()
+    future = artifact.start()
+    future.result()
+    artifact.join()
     assert artifact.get("test_passed")
 
 
@@ -23,10 +25,15 @@ def test_setup():
         async def setup(self):
             self.value = True
 
+        async def run(self):
+            self.kill()
+
     artifact = TestArtifact(jid="fake@jid", password="fake_password")
 
     assert artifact.value is False
-    artifact.start()
+    future = artifact.start()
+    future.result()
+    artifact.join()
     assert artifact.value
 
 
@@ -38,7 +45,8 @@ def test_name():
 def test_is_alive():
     artifact = MockedConnectedArtifactFactory()
     assert artifact.is_alive() is False
-    artifact.start()
+    future = artifact.start()
+    future.result()
     assert artifact.is_alive()
 
 
@@ -63,10 +71,13 @@ def test_send_msg():
             self.client.send = CoroutineMock()
             msg = Message()
             await self.send(msg)
+            self.kill()
 
     artifact = A(jid="fakejid", password="fakesecret")
 
-    artifact.start()
+    future = artifact.start()
+    future.result()
+    artifact.join()
 
     assert artifact.client.send.called_with(Message().prepare())
 
@@ -77,12 +88,15 @@ def test_receive():
             self.client = Mock()
             self.client.send = CoroutineMock()
             self.msg = await self.receive(1)
+            self.kill()
 
     artifact = A(jid="fakejid", password="fakesecret")
 
     artifact._message_received(Message().prepare())
 
-    artifact.start()
+    future = artifact.start()
+    future.result()
+    artifact.join()
 
     assert artifact.msg == Message()
 
@@ -93,14 +107,18 @@ def test_mailbox_size():
             self.client = Mock()
             self.client.send = CoroutineMock()
             self.msg = await self.receive(1)
+            self.kill()
 
     artifact = A(jid="fakejid", password="fakesecret")
 
-    artifact._message_received(Message().prepare())
+    future = artifact._message_received(Message().prepare())
+    future.result()
 
     assert artifact.mailbox_size() == 1
 
-    artifact.start()
+    future = artifact.start()
+    future.result()
+    artifact.join()
 
     assert artifact.msg == Message()
 

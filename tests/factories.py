@@ -36,6 +36,7 @@ class MockedConnectedArtifact(Artifact):
 
     async def run(self):
         self.set("test_passed", True)
+        self.kill()
 
 
 class MockedConnectedArtifactFactory(factory.Factory):

@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import sys
+import time
 from asyncio import Event
 from contextlib import suppress
 from typing import Union
@@ -12,6 +13,7 @@ from aiosasl import AuthenticationFailure
 from aioxmpp import ibr, XMPPCancelError, XMPPAuthError
 from aioxmpp.dispatcher import SimpleMessageDispatcher
 from loguru import logger
+from spade.container import Container
 from spade.message import Message
 from spade.presence import PresenceManager
 from spade_pubsub import PubSubMixin
@@ -43,32 +45,36 @@ class Artifact(PubSubMixin):
         self.message_dispatcher = None
         self.presence = None
 
-        self.loop = asyncio.new_event_loop()
+        self.container = Container()
+        self.container.register(self)
+        self.loop = self.container.loop
+
+        # self.loop = None #asyncio.new_event_loop()
 
         self.queue = asyncio.Queue(loop=self.loop)
         self._alive = Event()
 
+    def set_loop(self, loop):
+        self.loop = loop
+
+    def set_container(self, container):
+        """
+        Sets the container to which the artifact is attached
+
+        Args:
+            container (spade.container.Container): the container to be attached to
+        """
+        self.container = container
+
     def start(self, auto_register=True):
         """
-        Connects the artifact to the server, runs setup and runs the main loop.
+        Tells the container to start this agent.
+        It returns a coroutine or a future depending on whether it is called from a coroutine or a synchronous method.
 
         Args:
             auto_register (bool): register the agent in the server (Default value = True)
         """
-
-        try:
-            self.loop.run_until_complete(self._async_start(auto_register))
-            self.loop.run_until_complete(self.run())
-        finally:  # pragma: no cover
-            if sys.version_info >= (3, 7):
-                tasks = asyncio.all_tasks(loop=self.loop)  # pragma: no cover
-            else:
-                tasks = asyncio.Task.all_tasks(loop=self.loop)  # pragma: no cover
-            for task in tasks:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    self.loop.run_until_complete(task)
-            self.loop.close()
+        return self.container.start_agent(agent=self, auto_register=auto_register)
 
     async def _async_start(self, auto_register=True):
         """
@@ -116,7 +122,7 @@ class Artifact(PubSubMixin):
 
         # pubsub initialization
         try:
-            self._node = self.jid.bare()
+            self._node = str(self.jid.bare())
             await self.pubsub.create(self.pubsub_server, f"{self._node}")
         except XMPPCancelError as e:
             logger.info(f"Node {self._node} already registered")
@@ -126,6 +132,7 @@ class Artifact(PubSubMixin):
 
         await self.setup()
         self._alive.set()
+        asyncio.run_coroutine_threadsafe(self.run(), loop=self.loop)
 
     async def _hook_plugin_before_connection(self, *args, **kwargs):
         """
@@ -173,6 +180,9 @@ class Artifact(PubSubMixin):
         """
         await asyncio.sleep(0)
 
+    def kill(self):
+        self._alive.clear()
+
     async def run(self):
         """
         Main body of the artifact.
@@ -189,6 +199,7 @@ class Artifact(PubSubMixin):
         """
         Stop the artifact
         """
+        self.kill()
         return self.loop.run_until_complete(self._async_stop())
 
     async def _async_stop(self):
@@ -252,13 +263,13 @@ class Artifact(PubSubMixin):
           msg (aioxmpp.Messagge): the message just received.
 
         Returns:
-            list(asyncio.Future): a list of futures of the append of the message at each matched behaviour.
+            asyncio.Future: a future of the append of the message.
 
         """
 
         msg = Message.from_node(msg)
         logger.debug(f"Got message: {msg}")
-        self.loop.run_until_complete(self.queue.put(msg))
+        return asyncio.run_coroutine_threadsafe(self.queue.put(msg), self.loop)
 
     async def send(self, msg: Message):
         """
@@ -309,5 +320,30 @@ class Artifact(PubSubMixin):
         """
         return self.queue.qsize()
 
-    async def publish(self, content: str) -> None:
-        await self.pubsub.publish(self.pubsub_server, self._node, content)
+    def join(self, timeout=None):
+
+        try:
+            in_coroutine = asyncio.get_event_loop() == self.loop
+        except RuntimeError:  # pragma: no cover
+            in_coroutine = False
+
+        if not in_coroutine:
+            t_start = time.time()
+            while self.is_alive():
+                time.sleep(0.001)
+                t = time.time()
+                if timeout is not None and t - t_start > timeout:
+                    raise TimeoutError
+        else:
+            return self._async_join(timeout=timeout)
+
+    async def _async_join(self, timeout):
+        t_start = time.time()
+        while self.is_alive():
+            await asyncio.sleep(0.001)
+            t = time.time()
+            if timeout is not None and t - t_start > timeout:
+                raise TimeoutError
+
+    async def publish(self, payload: str) -> None:
+        await self.pubsub.publish(self.pubsub_server, self._node, payload)

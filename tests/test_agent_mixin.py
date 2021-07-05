@@ -1,3 +1,5 @@
+import collections
+
 from asynctest import Mock
 from spade.behaviour import OneShotBehaviour
 
@@ -37,13 +39,13 @@ def test_focus(agent):
     assert agent.artifacts.focus_callbacks["artifact@server"] == callback
 
 
-def test_quit_focus(agent):
+def test_ignore(agent):
     callback = Mock()
 
     class FocusBehaviour(OneShotBehaviour):
         async def run(self):
             await agent.artifacts.focus("artifact@server", callback)
-            await agent.artifacts.quit_focus("artifact@server")
+            await agent.artifacts.ignore("artifact@server")
 
     behav = FocusBehaviour()
     agent.add_behaviour(behav)
@@ -65,7 +67,18 @@ def test_set_on_item_published(agent):
     agent.add_behaviour(behav)
     behav.join()
 
-    agent.artifacts.on_item_published("artifact@server", "artifact@server", "item", "content")
+    class Item:
+        def __init__(self, data):
+            self.data = data
+            _data = collections.namedtuple("data", "data")
+            self.registered_payload = _data(data=self.data)
 
-    assert callback.called_with("item", "content")
+    agent.artifacts.on_item_published(
+        jid="artifact@server",
+        node="artifact@server",
+        item=Item("payload"),
+        message=None,
+    )
+
+    assert callback.called_with("artifact@server", "payload")
     agent.stop()

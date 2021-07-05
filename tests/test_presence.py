@@ -16,7 +16,8 @@ from tests.factories import MockedConnectedArtifactFactory
 def test_set_available():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     artifact.presence.set_available()
@@ -26,7 +27,8 @@ def test_set_available():
 def test_set_available_with_show():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     artifact.presence.set_available(show=PresenceShow.CHAT)
@@ -37,7 +39,8 @@ def test_set_available_with_show():
 def test_set_unavailable():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_unavailable()
 
@@ -47,7 +50,8 @@ def test_set_unavailable():
 def test_get_state_show():
     artifact = MockedConnectedArtifactFactory(available=True, show=PresenceShow.AWAY)
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.state.show == PresenceShow.AWAY
@@ -56,7 +60,8 @@ def test_get_state_show():
 def test_get_status_empty():
     artifact = MockedConnectedArtifactFactory(status={})
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.status == {}
@@ -65,7 +70,8 @@ def test_get_status_empty():
 def test_get_status_string():
     artifact = MockedConnectedArtifactFactory(status="Working")
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.status == {None: "Working"}
@@ -74,7 +80,8 @@ def test_get_status_string():
 def test_get_status_dict():
     artifact = MockedConnectedArtifactFactory(status={"en": "Working"})
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.status == {"en": "Working"}
@@ -83,7 +90,8 @@ def test_get_status_dict():
 def test_get_priority_default():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.priority == 0
@@ -92,7 +100,8 @@ def test_get_priority_default():
 def test_get_priority():
     artifact = MockedConnectedArtifactFactory(priority=10)
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
     artifact.mock_presence()
 
     assert artifact.presence.priority == 10
@@ -101,7 +110,8 @@ def test_get_priority():
 def test_set_presence_available():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(state=PresenceState(available=True))
 
@@ -111,7 +121,8 @@ def test_set_presence_available():
 def test_set_presence_unavailable():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(state=PresenceState(available=False))
 
@@ -121,7 +132,8 @@ def test_set_presence_unavailable():
 def test_set_presence_status():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(status="Lunch")
 
@@ -131,7 +143,8 @@ def test_set_presence_status():
 def test_set_presence_status_dict():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(status={"en": "Lunch"})
 
@@ -141,7 +154,8 @@ def test_set_presence_status_dict():
 def test_set_presence_priority():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(priority=5)
 
@@ -151,7 +165,8 @@ def test_set_presence_priority():
 def test_set_presence():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.set_presence(
         state=PresenceState(True, PresenceShow.PLAIN), status="Lunch", priority=2
@@ -166,7 +181,8 @@ def test_set_presence():
 def test_get_contacts_empty():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     assert artifact.presence.get_contacts() == {}
 
@@ -174,7 +190,8 @@ def test_get_contacts_empty():
 def test_get_contacts(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -197,7 +214,8 @@ def test_get_contacts(jid):
 def test_get_contacts_with_presence(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -220,7 +238,8 @@ def test_get_contacts_with_presence(jid):
 def test_get_contacts_with_presence_on_and_off(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -245,7 +264,8 @@ def test_get_contacts_with_presence_on_and_off(jid):
 def test_get_contacts_with_presence_unavailable(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -268,7 +288,8 @@ def test_get_contacts_with_presence_unavailable(jid):
 def test_get_contact(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -289,7 +310,8 @@ def test_get_contact(jid):
 def test_get_invalid_jid_contact():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     with pytest.raises(ContactNotFound):
         artifact.presence.get_contact(JID.fromstr("invalid@contact"))
@@ -298,7 +320,8 @@ def test_get_invalid_jid_contact():
 def test_get_invalid_str_contact():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     with pytest.raises(AttributeError):
         artifact.presence.get_contact("invalid@contact")
@@ -308,7 +331,8 @@ def test_subscribe(jid):
     peer_jid = str(jid)
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.client.enqueue = Mock()
     artifact.presence.subscribe(peer_jid)
@@ -324,7 +348,8 @@ def test_unsubscribe(jid):
     peer_jid = str(jid)
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.client.enqueue = Mock()
     artifact.presence.unsubscribe(peer_jid)
@@ -340,7 +365,8 @@ def test_approve(jid):
     peer_jid = str(jid)
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.client.enqueue = Mock()
     artifact.presence.approve(peer_jid)
@@ -355,7 +381,8 @@ def test_approve(jid):
 def test_on_available(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_available = Mock()
 
@@ -372,7 +399,8 @@ def test_on_available(jid):
 def test_on_unavailable(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_unavailable = Mock()
     artifact.presence.presenceclient._presences[jid.bare()] = {"home": None}
@@ -390,7 +418,8 @@ def test_on_unavailable(jid):
 def test_on_subscribe(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_subscribe = Mock()
 
@@ -405,7 +434,8 @@ def test_on_subscribe(jid):
 def test_on_subscribe_approve_all(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.approve_all = True
     artifact.client.enqueue = Mock()
@@ -423,7 +453,8 @@ def test_on_subscribe_approve_all(jid):
 def test_on_subscribed(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_subscribed = Mock()
 
@@ -438,7 +469,8 @@ def test_on_subscribed(jid):
 def test_on_unsubscribe(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_unsubscribe = Mock()
 
@@ -453,7 +485,8 @@ def test_on_unsubscribe(jid):
 def test_on_unsubscribe_approve_all(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.approve_all = True
     artifact.client.enqueue = Mock()
@@ -471,7 +504,8 @@ def test_on_unsubscribe_approve_all(jid):
 def test_on_unsubscribed(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     artifact.presence.on_unsubscribed = Mock()
 
@@ -486,7 +520,8 @@ def test_on_unsubscribed(jid):
 def test_on_changed(jid):
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     item = XSOItem(jid=jid)
     item.approved = True
@@ -513,7 +548,8 @@ def test_on_changed(jid):
 def test_ignore_self_presence():
     artifact = MockedConnectedArtifactFactory()
 
-    artifact.start(auto_register=False)
+    future = artifact.start(auto_register=False)
+    future.result()
 
     jid = artifact.jid
 
