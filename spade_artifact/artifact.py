@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import abc
 import asyncio
 import logging
 import sys
 import time
 from asyncio import Event
-from contextlib import suppress
 from typing import Union
 
 import aiosasl
@@ -19,7 +19,21 @@ from spade.presence import PresenceManager
 from spade_pubsub import PubSubMixin
 
 
-class Artifact(PubSubMixin):
+class AbstractArtifact(object, metaclass=abc.ABCMeta):
+    async def _hook_plugin_before_connection(self, *args, **kwargs):
+        """
+        Overload this method to hook a plugin before connection is done
+        """
+        pass
+
+    async def _hook_plugin_after_connection(self, *args, **kwargs):
+        """
+        Overload this method to hook a plugin after connection is done
+        """
+        pass
+
+
+class Artifact(PubSubMixin, AbstractArtifact):
     def __init__(self, jid, password, pubsub_server=None, verify_security=False):
         """
         Creates an artifact
@@ -133,24 +147,6 @@ class Artifact(PubSubMixin):
         await self.setup()
         self._alive.set()
         asyncio.run_coroutine_threadsafe(self.run(), loop=self.loop)
-
-    async def _hook_plugin_before_connection(self, *args, **kwargs):
-        """
-        Overload this method to hook a plugin before connetion is done
-        """
-        try:
-            await super()._hook_plugin_before_connection(*args, **kwargs)
-        except AttributeError:
-            logger.debug("_hook_plugin_before_connection is undefined")
-
-    async def _hook_plugin_after_connection(self, *args, **kwargs):
-        """
-        Overload this method to hook a plugin after connetion is done
-        """
-        try:
-            await super()._hook_plugin_after_connection(*args, **kwargs)
-        except AttributeError:
-            logger.debug("_hook_plugin_after_connection is undefined")
 
     async def _async_connect(self):  # pragma: no cover
         """ connect and authenticate to the XMPP server. Async mode. """
