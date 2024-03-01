@@ -80,7 +80,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         """
         self.container = container
 
-    def start(self, auto_register=True):
+    async def start(self, auto_register: bool = True) -> None:
         """
         Tells the container to start this agent.
         It returns a coroutine or a future depending on whether it is called from a coroutine or a synchronous method.
@@ -88,7 +88,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         Args:
             auto_register (bool): register the agent in the server (Default value = True)
         """
-        return self.container.start_agent(agent=self, auto_register=auto_register)
+        return await self._async_start(auto_register=auto_register)
 
     async def _async_start(self, auto_register=True):
         """
@@ -191,12 +191,12 @@ class Artifact(PubSubMixin, AbstractArtifact):
         """ Returns the name of the artifact (the string before the '@') """
         return self.jid.localpart
 
-    def stop(self):
+    async def stop(self) -> None:
         """
-        Stop the artifact
+        Stops this agent.
         """
         self.kill()
-        return self.loop.run_until_complete(self._async_stop())
+        return await self._async_stop()
 
     async def _async_stop(self):
         """ Stops an artifact and kills all its behaviours. """
