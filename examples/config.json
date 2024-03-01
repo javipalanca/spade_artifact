@@ -1,0 +1,9 @@
+{
+  "XMPP_SERVER": "your_xmpp_server",
+  "artifact_name": "your_artifact_name",
+  "agent_name": "your_agent_name",
+  "csv_file_path": "df.csv",
+  "columns_to_read": ["A", "B", "T"],
+  "time_column": "T",
+  "read_frequency": 1
+}
