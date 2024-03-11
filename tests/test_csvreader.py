@@ -38,5 +38,3 @@ class TestCSVReaderArtifact(asynctest.TestCase):
         os.unlink(self.temp_csv.name)
 
 
-if __name__ == "__main__":
-    asynctest.main()
