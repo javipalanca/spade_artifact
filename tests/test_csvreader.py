@@ -30,7 +30,14 @@ class TestCSVReaderArtifact(asynctest.TestCase):
 
         self.assertEqual(artifact.publish.call_count, 2)
 
+        expected_data = [
+            {"Time": "2021-01-01 00:00:00", "Value": 100},
+            {"Time": "2021-01-01 00:00:02", "Value": 101}
+        ]
 
+        for call_arg, expected in zip(artifact.publish.call_args_list, expected_data):
+            actual_data = call_arg[0][0]
+            self.assertEqual(eval(actual_data), expected)
 
 
 
