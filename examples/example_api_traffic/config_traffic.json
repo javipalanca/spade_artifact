@@ -1,6 +1,6 @@
 {
-  "XMPP_SERVER": "158.42.141.179",
-  "artifact_name": "traffic_art",
-  "agent_name": "traffic_ag",
+  "XMPP_SERVER": "your_xmpp_server",
+  "artifact_name": "your_artifact_name",
+  "agent_name": "your_agent_name",
   "api_url": "https://valencia.opendatasoft.com/api/v2/catalog/datasets/estat-transit-temps-real-estado-trafico-tiempo-real/records?limit=20"
 }
