@@ -24,3 +24,4 @@ testfixtures==6.17.1
 pytest-aiohttp==0.3.0
 docutils==0.12
 factory-boy==3.2.0
+aioresponses==0.7.6
