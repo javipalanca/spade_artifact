@@ -35,7 +35,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         self.http_method = http_method
         self.params = params or {}
         self.headers = headers or {}
-        self.time_request = time_request*60
+        self.time_request = time_request*60 if time_request is not None else time_request
 
     async def update_url(self):
         """
@@ -63,8 +63,6 @@ class APIReaderArtifact(spade_artifact.Artifact):
     async def setup(self):
         self.presence.set_available()
 
-
-
     async def run(self):
         """
         Starts the artifact's main operation of sending requests to the API and processing the responses.
@@ -73,7 +71,9 @@ class APIReaderArtifact(spade_artifact.Artifact):
         """
         self.presence.set_available()
 
-        while True:
+        continue_request = True
+
+        while continue_request:
             await self.update_url()
             async with aiohttp.ClientSession() as session:
                 async with session.request(self.http_method, self.api_url, params=self.params,
@@ -87,6 +87,9 @@ class APIReaderArtifact(spade_artifact.Artifact):
                     else:
                         await self.publish(f"Failed to retrieve data, status code: {response.status}")
 
-            await asyncio.sleep(self.time_request)
+            if self.time_request is None:
+                continue_request = False
+            else:
+                await asyncio.sleep(self.time_request)
 
 
