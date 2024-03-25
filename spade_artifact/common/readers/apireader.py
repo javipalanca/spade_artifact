@@ -74,6 +74,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         self.presence.set_available()
 
         while True:
+            await self.update_url()
             async with aiohttp.ClientSession() as session:
                 async with session.request(self.http_method, self.api_url, params=self.params,
                                            headers=self.headers) as response:
