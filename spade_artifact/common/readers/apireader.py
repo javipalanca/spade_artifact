@@ -14,6 +14,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         http_method (str, optional): The HTTP method to use for the request (e.g., 'GET', 'POST'). Defaults to 'GET'.
         params (dict, optional): A dictionary of parameters to be sent in the query string of the request. Defaults to an empty dictionary.
         headers (dict, optional): A dictionary of HTTP headers to send with the request. Defaults to an empty dictionary.
+        time_request(int, optional) : Time in minutes to wait for the request data update.
 
     Args:
         jid (str): The JID (Jabber Identifier) of the artifact.
@@ -23,20 +24,46 @@ class APIReaderArtifact(spade_artifact.Artifact):
         http_method (str, optional): The HTTP method to use for the request. Defaults to 'GET'.
         params (dict, optional): Parameters to include in the request. Defaults to None, which is converted to an empty dictionary.
         headers (dict, optional): HTTP headers to include in the request. Defaults to None, which is converted to an empty dictionary.
+        time_request(int, optional) : Time in minutes to wait for the request data update.
     """
-    def __init__(self, jid, passwd, api_url, data_processor, http_method='GET', params=None, headers=None):
+
+    def __init__(self, jid, passwd, api_url, data_processor = None, http_method='GET', params=None, headers=None, time_request=None):
         super().__init__(jid, passwd)
         self.api_url = api_url
-        self.data_processor = data_processor
+        self.url_template = api_url
+        self.data_processor = data_processor if data_processor is not None else self.default_data_processor
         self.http_method = http_method
         self.params = params or {}
         self.headers = headers or {}
+        self.time_request = time_request*60
+
+    async def update_url(self):
+        """
+        This method can be overridden to update the API URL as needed.
+
+        By default, this method does nothing. Developers can override it
+        to add specific URL update logic for their application.
+        """
+        pass
+
+    @staticmethod
+    async def default_data_processor(data):
+        """
+        Default data processor function that passes the data through without any transformation.
+
+        Args:
+            data: The data received from the API request.
+
+        Returns:
+            A list containing the original data.
+        """
+        print('default data processor started, no data transformation will be done')
+        return [data]
 
     async def setup(self):
-        """
-        Sets up the artifact by marking its presence as available on the XMPP server.
-        """
         self.presence.set_available()
+
+
 
     async def run(self):
         """
@@ -46,16 +73,19 @@ class APIReaderArtifact(spade_artifact.Artifact):
         """
         self.presence.set_available()
 
-        async with aiohttp.ClientSession() as session:
-            async with session.request(self.http_method, self.api_url, params=self.params, headers=self.headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    processed_data = await self.data_processor(data)
+        while True:
+            async with aiohttp.ClientSession() as session:
+                async with session.request(self.http_method, self.api_url, params=self.params,
+                                           headers=self.headers) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        processed_data = await self.data_processor(data)
 
-                    for message in processed_data:
-                        await self.publish(message)
-                        await asyncio.sleep(2)
-                else:
-                    await self.publish(f"Failed to retrieve data, status code: {response.status}")
+                        for message in processed_data:
+                            await self.publish(message)
+                    else:
+                        await self.publish(f"Failed to retrieve data, status code: {response.status}")
 
-        self.presence.set_unavailable()
+            await asyncio.sleep(self.time_request)
+
+
