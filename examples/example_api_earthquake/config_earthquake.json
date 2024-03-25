@@ -1,0 +1,7 @@
+{
+  "XMPP_SERVER": "your_xmpp_server",
+  "artifact_name": "your_artifact_name",
+  "agent_name": "your_agent_name",
+  "api_url": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+  "time_request" : 3
+}

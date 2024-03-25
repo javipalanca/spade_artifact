@@ -8,7 +8,6 @@ from spade_artifact import ArtifactMixin
 from loguru import logger
 
 
-
 # Example data processor function that now returns processed data
 
 async def traffic_data_processor(data):
@@ -31,24 +30,21 @@ async def traffic_data_processor(data):
 
     messages = []
 
+    if not filtered_records:
+        messages.append('Todas las calles tienen circulacion fluida')
+    else:
+        for record in filtered_records:
+            estado_code = record['record']['fields']['estado']
 
+            estado_descriptive = traffic_state_names.get(estado_code, "Estado desconocido")
 
-    for record in filtered_records:
+            denominacion = record['record']['fields']['denominacion']
 
-        estado_code = record['record']['fields']['estado']
+            message = f"Calle: {denominacion}, Estado: {estado_descriptive}"
 
-        estado_descriptive = traffic_state_names.get(estado_code, "Estado desconocido")
-
-        denominacion = record['record']['fields']['denominacion']
-
-        message = f"Calle: {denominacion}, Estado: {estado_descriptive}"
-
-        messages.append(message)
-
-
+            messages.append(message)
 
     return messages
-
 
 
 class ConsumerAgent(ArtifactMixin, Agent):
@@ -81,8 +77,9 @@ async def main():
     agent_passwd = getpass.getpass(prompt=f"Password for Agent {agent_name}> ")
 
     api_url = config.get('api_url')
-
-    artifact = APIReaderArtifact(artifact_jid, artifact_passwd, api_url, traffic_data_processor)
+    time_request = config.get('time_request', None)
+    artifact = APIReaderArtifact(artifact_jid, artifact_passwd, api_url, traffic_data_processor,
+                                 time_request=time_request)
     await artifact.start()
 
     agent = ConsumerAgent(jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid)
@@ -94,6 +91,5 @@ async def main():
     print("Agents and Artifacts have been stopped")
 
 
-
 if __name__ == "__main__":
-     asyncio.run(main())
+    asyncio.run(main())
