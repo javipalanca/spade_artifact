@@ -23,20 +23,19 @@ class EarthquakeReaderArtifact(APIReaderArtifact):
             'minmagnitude': '4'
         }
         self.api_url = f"{self.url_template}?{urlencode(parameters)}"
-        print(f"la url actualizada : {self.api_url}")
+        print(f"Updated url : {self.api_url}")
 
 
 async def earthquake_data_processor(data):
-    if not data['features']:
-        current_time = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        return [f"No hay datos registrados para el tiempo: {current_time}"]
-
     messages = []
+    if not data['features']:
+        return messages
+
     for earthquake in data['features']:
         place = earthquake['properties']['place']
         magnitude = earthquake['properties']['mag']
         time = datetime.utcfromtimestamp(earthquake['properties']['time'] / 1000).strftime('%Y-%m-%d %H:%M:%S')
-        messages.append(f"Lugar: {place}, Magnitud: {magnitude}, Hora: {time}")
+        messages.append(f"Place: {place}, Magnitude: {magnitude}, Time: {time}")
     return messages
 
 class EarthquakeAgent(ArtifactMixin, Agent):
