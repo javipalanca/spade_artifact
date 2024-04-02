@@ -1,4 +1,7 @@
 import asyncio
+
+from loguru import logger
+
 import spade_artifact
 import sqlite3
 import pymysql
@@ -12,8 +15,19 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
     processing the results, and performing actions at regular intervals.
 
     Attributes:
-        db_type (str): The type of the database ('sql' or 'postgresql').
-        connection_params (dict): Details required to connect to the database.
+       db_type (str): The type of the database. This parameter accepts the following values:
+            - 'mysql': Indicates that the database is a MySQL database. Requires `pymysql` library.
+            - 'sqlite': Indicates that the database is a SQLite database. Uses Python's built-in `sqlite3` library.
+            - 'postgresql': Indicates that the database is a PostgreSQL database. Requires `psycopg2` library.
+        connection_params (dict): Details required to connect to the database. The structure of this dictionary varies based on the `db_type`:
+            - For 'mysql' and 'postgresql': This dictionary should include the following keys:
+                - 'host': The hostname or IP address of the database server.
+                - 'user': The username used to authenticate with the database.
+                - 'password': The password used to authenticate with the database.
+                - 'database': The name of the database to connect to.
+                Additionally, for 'postgresql', the key 'port' can be included to specify the database server port.
+            - For 'sqlite': This dictionary needs only one key:
+                - 'database': The file path of the SQLite database. If the file does
         query (str): The database query to be executed.
         data_processor (Callable): A function to process the data received from the query.
         time_request (int, optional): Time in seconds to wait before re-executing the query.
@@ -46,7 +60,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         Returns:
             A list containing the original data.
         """
-        print('default data processor started, no data transformation will be done')
+        logger.info('default data processor started, no data transformation will be done')
         return [data]
 
     async def update_query(self):
@@ -161,7 +175,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
                     await self.publish(message)
 
             except Exception as e:
-                print(f"An error has been occurred : {e}")
+                logger.info(f"An error has been occurred : {e}")
 
             finally:
                 if self.time_request is not None:
