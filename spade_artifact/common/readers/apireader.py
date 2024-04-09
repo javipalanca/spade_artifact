@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+from loguru import logger
+
 import spade_artifact
 
 class APIReaderArtifact(spade_artifact.Artifact):
@@ -57,7 +59,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         Returns:
             A list containing the original data.
         """
-        print('default data processor started, no data transformation will be done')
+        logger.info('default data processor started, no data transformation will be done')
         return [data]
 
     async def setup(self):

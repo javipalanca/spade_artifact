@@ -134,7 +134,7 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
                     await self.publish(message)
 
             except Exception as e:
-                logger.info(f"An error has been occurred : {e}")
+                logger.error(f"An error has been occurred : {e}")
 
             finally:
                 if self.time_request is not None:
