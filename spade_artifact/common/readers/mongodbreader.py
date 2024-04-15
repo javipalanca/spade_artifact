@@ -3,7 +3,8 @@ import asyncio
 from loguru import logger
 
 import spade_artifact
-from pymongo import MongoClient
+
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class MongoDBQueryArtifact(spade_artifact.Artifact):
@@ -82,7 +83,8 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         """
         Asynchronously establishes a connection to the MongoDB database.
         """
-        self.client = MongoClient(self.connection_uri)
+
+        self.client = AsyncIOMotorClient(self.connection_uri)
         self.db = self.client[self.database_name]
         self.collection = self.db[self.collection_name]
 
@@ -128,7 +130,7 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         while continue_query:
             try:
                 await self.update_query()
-                data = await self.execute_query()
+                data = await self.execute_operation()
                 processed_data = await self.data_processor(data)
                 for message in processed_data:
                     await self.publish(message)
