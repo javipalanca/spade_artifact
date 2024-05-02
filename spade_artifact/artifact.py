@@ -366,7 +366,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         if node in self.subscriptions:
             self.subscriptions[node](jid, item.registered_payload.data)
 
-    async def focus_artifact(self, target_artifact_jid, callback):
+    async def link(self, target_artifact_jid, callback):
         """
         Subscribe to another artifact's publications.
 
@@ -377,7 +377,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         await self.pubsub.subscribe(self.pubsub_server, str(target_artifact_jid))
         self.subscriptions[target_artifact_jid] = callback
 
-    async def ignore_artifact(self, target_artifact_jid):
+    async def unlink(self, target_artifact_jid):
         """
         Unsubscribe from another artifact's publications.
 
