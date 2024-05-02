@@ -31,7 +31,7 @@ class SubscriberArtifact(Artifact):
     async def setup(self):
         self.presence.set_available()
         await asyncio.sleep(2)
-        await self.focus_artifact(self.publisher_jid, self.artifact_callback)
+        await self.link(self.publisher_jid, self.artifact_callback)
 
 async def main():
     XMPP_SERVER = input("XMPP Server> ")
