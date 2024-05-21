@@ -1,0 +1,7 @@
+{
+    "XMPP_SERVER": "158.42.141.179",
+    "publisher_artifact_name": "publisher_artifact",
+    "subscriber_artifact_name": "subscriber_artifact",
+    "orion_ip": "localhost",
+    "project_name": "citcom"
+}
