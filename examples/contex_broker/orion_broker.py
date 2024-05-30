@@ -9,6 +9,7 @@ class PublisherArtifact(spade_artifact.Artifact):
     def __init__(self, jid, passwd, payload):
         super().__init__(jid, passwd)
         self.payload = payload
+
     async def setup(self):
         self.presence.set_available()
         await asyncio.sleep(2)
@@ -19,7 +20,7 @@ class PublisherArtifact(spade_artifact.Artifact):
                 payload_json = json.dumps(self.payload)
                 logger.info(f"Publishing data: {payload_json}")
                 await self.publish(str(payload_json))
-            await asyncio.sleep(5)
+            await asyncio.sleep(360)
 
 
 async def main():
@@ -46,10 +47,9 @@ async def main():
     orion_ip = config["orion_ip"]
     project_name = config["project_name"]
 
-    json_exceptions = {"location": "coordinates"}
 
     subscriber = InserterArtifact(subscriber_jid, subscriber_passwd, publisher_jid, orion_ip,
-                                  project_name, json_template=json_template, json_exceptions = json_exceptions)
+                                  project_name, json_template=json_template)
 
     await publisher.start()
     await subscriber.start()
@@ -60,6 +60,7 @@ async def main():
     await subscriber.stop()
 
     print("Agents and Artifacts have been stopped")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

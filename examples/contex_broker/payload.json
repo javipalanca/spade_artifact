@@ -6,7 +6,6 @@
     "locality": "Valencia",
     "street_number": "56",
     "status": "active",
-    "waste_kind" : "Organic",
-    "worker_id": "554"
+    "waste_kind" : "Organic"
 
 }
