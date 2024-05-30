@@ -1,0 +1,12 @@
+{
+    "type": "WasteContainer",
+    "id": "271",
+    "coordinates": [16.4168, -8.7038],
+    "country": "Spain",
+    "locality": "Valencia",
+    "street_number": "56",
+    "status": "active",
+    "waste_kind" : "Organic",
+    "worker_id": "554"
+
+}
