@@ -26,15 +26,16 @@ class InserterArtifact(spade_artifact.Artifact):
           jid (str): Jabber ID for the artifact.
           passwd (str): Password for the artifact's Jabber ID.
           publisher_jid (str): Jabber ID of the publisher artifact.
-          orion_ip (str): IP address of the Orion Context Broker.
+          host (str): The hostname or IP address of the server where the context broker is running.
           project_name (str): Name of the project (used as tenant in headers).
           columns_update (list, optional): List of columns to update. Default is an empty list.
           data_processor (Callable, optional): Function to process data. If None, uses default_data_processor.
           json_template (dict, optional): Template for constructing JSON payloads. Default is an empty dictionary.
           json_exceptions (dict, optional): Exceptions for JSON cleaning rules. Default is an empty dictionary.
+          port (str, optional): : The network port number on which the context broker service is listening
       """
-    def __init__(self, jid, passwd, publisher_jid, orion_ip, project_name, columns_update=[],
-                 data_processor=None, json_template=None, json_exceptions=None):
+    def __init__(self, jid, passwd, publisher_jid, host, project_name, columns_update=[],
+                 data_processor=None, json_template=None, json_exceptions=None, port='9090'):
         """
         Initializes the InserterArtifact object with the given parameters.
 
@@ -54,7 +55,7 @@ class InserterArtifact(spade_artifact.Artifact):
         if json_exceptions is None:
             json_exceptions = {}
 
-        self.api_url = f"http://{orion_ip}:1026/ngsi-ld/v1/entities"
+        self.api_url = f"http://{host}:{port}/ngsi-ld/v1/entities"
         self.headers = {
             "Content-Type": "application/ld+json",
             "NGSILD-Tenant": project_name
