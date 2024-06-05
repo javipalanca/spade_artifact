@@ -44,12 +44,12 @@ async def main():
     subscriber_jid = f"{subscriber_name}@{XMPP_SERVER}"
     subscriber_passwd = getpass.getpass(prompt="Password for subscriber artifact> ")
 
-    orion_ip = config["orion_ip"]
+    host = config["host"]
     project_name = config["project_name"]
 
 
-    subscriber = InserterArtifact(subscriber_jid, subscriber_passwd, publisher_jid, orion_ip,
-                                  project_name, json_template=json_template)
+    subscriber = InserterArtifact(subscriber_jid, subscriber_passwd, publisher_jid, host,
+                                  project_name, json_template=json_template,columns_update=['location'])
 
     await publisher.start()
     await subscriber.start()
