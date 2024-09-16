@@ -67,6 +67,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         self.queue = asyncio.Queue(loop=self.loop)
         self._alive = Event()
+        self.subscriptions = {}
 
     def set_loop(self, loop):
         self.loop = loop
@@ -80,7 +81,15 @@ class Artifact(PubSubMixin, AbstractArtifact):
         """
         self.container = container
 
-    def start(self, auto_register=True):
+    async def _hook_plugin_after_connection(self, *args, **kwargs):
+        try:
+            await super()._hook_plugin_after_connection(*args, **kwargs)
+        except AttributeError:
+            logger.debug("_hook_plugin_after_connection is undefined")
+
+        # Set the publication handler once the connection is established
+        self.pubsub.set_on_item_published(self.on_item_published)
+    async def start(self, auto_register: bool = True) -> None:
         """
         Tells the container to start this agent.
         It returns a coroutine or a future depending on whether it is called from a coroutine or a synchronous method.
@@ -88,7 +97,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         Args:
             auto_register (bool): register the agent in the server (Default value = True)
         """
-        return self.container.start_agent(agent=self, auto_register=auto_register)
+        return await self._async_start(auto_register=auto_register)
 
     async def _async_start(self, auto_register=True):
         """
@@ -191,12 +200,12 @@ class Artifact(PubSubMixin, AbstractArtifact):
         """ Returns the name of the artifact (the string before the '@') """
         return self.jid.localpart
 
-    def stop(self):
+    async def stop(self) -> None:
         """
-        Stop the artifact
+        Stops this agent.
         """
         self.kill()
-        return self.loop.run_until_complete(self._async_stop())
+        return await self._async_stop()
 
     async def _async_stop(self):
         """ Stops an artifact and kills all its behaviours. """
@@ -343,3 +352,40 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
     async def publish(self, payload: str) -> None:
         await self.pubsub.publish(self.pubsub_server, self._node, payload)
+
+    def on_item_published(self, jid, node, item, message=None):
+        """
+        Callback to handle an item published event.
+
+        Args:
+            jid (str): The JID of the publisher.
+            node (str): The node/topic from which the item was published.
+            item (object): The item that was published.
+            message (str, optional): Additional message or data associated with the publication.
+        """
+        if node in self.subscriptions:
+            self.subscriptions[node](jid, item.registered_payload.data)
+
+    async def link(self, target_artifact_jid, callback):
+        """
+        Subscribe to another artifact's publications.
+
+        Args:
+            target_artifact_jid (str): The JID of the target artifact to subscribe to.
+            callback (Callable): The callback to invoke when an item is published.
+        """
+        await self.pubsub.subscribe(self.pubsub_server, str(target_artifact_jid))
+        self.subscriptions[target_artifact_jid] = callback
+
+    async def unlink(self, target_artifact_jid):
+        """
+        Unsubscribe from another artifact's publications.
+
+        Args:
+            target_artifact_jid (str): The JID of the target artifact to unsubscribe from.
+        """
+        await self.pubsub.unsubscribe(self.pubsub_server, str(target_artifact_jid))
+        if target_artifact_jid in self.subscriptions:
+            del self.subscriptions[target_artifact_jid]
+
+

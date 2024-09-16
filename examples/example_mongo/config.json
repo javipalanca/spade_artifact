@@ -1,0 +1,14 @@
+
+{
+  "XMPP_SERVER": "your_xmpp_server",
+  "artifact_name": "your_artifact_name",
+  "agent_name": "your_agent_name",
+  "uri" : "uri_connection",
+   "query": {
+    "field": "example_field",
+    "value": "example_value"
+  },
+  "database_name": "name_database",
+  "collection_name": "your_collection_name",
+  "operation" : "quey_operation"
+}
