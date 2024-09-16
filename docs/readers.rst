@@ -3,9 +3,6 @@ Readers
 ============
 
 
-
-
-
 CSV Reader
 ==========
 Description
@@ -568,6 +565,284 @@ The following Python script demonstrates how the ``MongoDBQueryArtifact`` and ``
 .. warning::
    This example is not functional on its own. To run it, you must have a MongoDB database set up. The code has been tested with a test database on MongoDB Atlas.
 
+ContextBrokerInserter
+=====================
+
+An artifact for inserting and updating data in an Orion Context Broker.
+
+This class facilitates communication with an Orion Context Broker instance, allowing
+for the creation and update of entities based on received payloads. It utilizes an
+asynchronous queue to manage incoming data and ensures that data is sent to the context
+broker in a timely manner.
+
+Attributes
+----------
+
+- **api_url (str)**: The URL of the Orion Context Broker API.
+- **headers (dict)**: Headers used for HTTP requests to the Orion Context Broker.
+- **columns_update (list)**: A list of columns to update. If empty, all columns are updated.
+- **data_processor (Callable)**: Function to process the data received from the artifact.
+- **json_template (dict)**: Template for constructing JSON payloads.
+- **json_exceptions (dict)**: Exceptions for JSON cleaning rules.
+
+Args
+----
+
+- **jid (str)**: Jabber ID for the artifact.
+- **passwd (str)**: Password for the artifact's Jabber ID.
+- **publisher_jid (str)**: Jabber ID of the publisher artifact.
+- **orion_ip (str)**: IP address of the Orion Context Broker.
+- **project_name (str)**: Name of the project (used as tenant in headers).
+- **columns_update (list, optional)**: List of columns to update. Default is an empty list.
+- **data_processor (Callable, optional)**: Function to process data. If None, uses default_data_processor.
+- **json_template (dict, optional)**: Template for constructing JSON payloads. Default is an empty dictionary.
+- **json_exceptions (dict, optional)**: Exceptions for JSON cleaning rules. Default is an empty dictionary.
+
+Methods
+-------
+
+- **setup()**
+
+  Sets up the ContextBrokerInserter by making it available and linking it to the publisher artifact.
+
+  This method sets the presence to available, waits for a second, and then links the artifact
+  to the publisher using the provided publisher_jid. If the linking fails, it logs an error.
+
+  Raises:
+      Exception: If linking to the publisher fails.
+
+- **default_data_processor(data: dict) -> list**
+
+  Default data processor function that passes the data through without any transformation.
+
+  This function serves as the default data processor, which simply returns the data encapsulated
+  in a list without performing any modifications.
+
+  Args:
+      data (dict): The data received from the API request.
+
+  Returns:
+      list: A list containing the original data.
+
+- **artifact_callback(artifact: str, payload: str)**
+
+  Callback function triggered when data is received from the linked artifact.
+
+  This function processes the received payload using the data processor and
+  puts the processed data into the payload queue.
+
+  Args:
+      artifact (str): The name or identifier of the artifact sending the data.
+      payload (str): The JSON payload received from the artifact.
+
+  Raises:
+      json.JSONDecodeError: If the payload is not valid JSON.
+
+- **process_and_send_data(payload: dict)**
+
+  Processes the given payload and sends the data to the Orion Context Broker.
+
+  This function constructs the entity ID and JSON data, checks if the entity exists,
+  and either updates the existing entity's attributes or creates a new entity.
+
+  Args:
+      payload (dict): The payload containing data to be sent to the Orion Context Broker.
+
+  Raises:
+      KeyError: If 'type' or 'id' keys are missing in the payload.
+
+- **update_specific_attributes(entity_id: str, entity_data: dict)**
+
+  Updates specific attributes of an existing entity.
+
+  Args:
+      entity_id (str): The ID of the entity to update.
+      entity_data (dict): The data to update the entity with.
+
+- **update_or_create_entity(entity_id: str, entity_data: dict, payload: dict)**
+
+  Updates all attributes of an existing entity or creates a new entity if it does not exist.
+
+  Args:
+      entity_id (str): The ID of the entity to update or create.
+      entity_data (dict): The data to update or create the entity with.
+
+- **build_entity_json(payload, clean=True)**
+
+  Constructs the JSON structure for an Orion entity based on the received payload and a template.
+
+  Args:
+      payload (dict): The payload received from the publisher artifact.
+      clean (bool): Whether to clean the result by removing entries without 'value' or 'type'.
+
+  Returns:
+      dict: A dictionary representing the JSON structure of the Orion entity.
+
+- **entity_exists(entity_id: str) -> bool**
+
+  Checks if an entity exists in the Orion Context Broker.
+
+  This function sends a GET request to the Orion Context Broker to check if an entity with
+  the specified ID exists.
+
+  Args:
+      entity_id (str): The ID of the entity to check.
+
+  Returns:
+      bool: True if the entity exists, False otherwise.
+
+  Raises:
+      Exception: If the HTTP request fails.
+
+- **create_new_entity(entity_data: dict)**
+
+  Creates a new entity in the Orion Context Broker.
+
+  This function sends a POST request to the Orion Context Broker to create a new entity
+  with the provided data.
+
+  Args:
+      entity_data (dict): The data for the new entity.
+
+  Raises:
+      Exception: If the HTTP request fails or the entity creation is unsuccessful.
+
+- **update_entity_attribute(entity_id: str, attribute: str, attribute_data: dict, context: any)**
+
+  Updates a specific attribute of an existing entity in the Orion Context Broker.
+
+  This function sends a PATCH request to the Orion Context Broker to update a specific attribute
+  of an entity with the provided data. If the attribute does not exist, it uses a POST request to add it.
+
+  Args:
+      entity_id (str): The ID of the entity to update.
+      attribute (str): The attribute of the entity to update.
+      attribute_data (dict): The data to update the attribute with.
+      context (any): The JSON-LD context to include in the payload.
+
+  Raises:
+      Exception: If the HTTP request fails or the attribute update is unsuccessful.
+
+- **update_all_attributes(entity_id, entity_data, context)**
+
+  Updates all attributes of an existing entity in the Orion Context Broker.
+
+  This function sends a PATCH request to the Orion Context Broker to update each attribute
+  of an entity with the provided data. If any attribute does not exist, it uses a POST request to add it.
+
+  Args:
+      entity_id (str): The ID of the entity to update.
+      entity_data (dict): The data to update the entity with.
+      context (any): The JSON-LD context to include in the payload.
+
+  Raises:
+      Exception: If the HTTP request fails or the attribute update is unsuccessful.
+
+- **run()**
+
+  Continuously processes and sends data from the payload queue to the Orion Context Broker.
+
+  This function sets the presence to available and enters an infinite loop where it waits
+  for data from the payload queue, processes it, and sends it to the Orion Context Broker.
+
+  Raises:
+      Exception: If processing or sending data fails.
 
 
 
+Use Example
+-----------
+
+This section provides a functional example of how to use the `ContextBrokerInserter` class.
+
+Example Code
+------------
+
+.. code-block:: python
+
+    import json
+    import asyncio
+    import getpass
+    import spade_artifact
+    from loguru import logger
+    from spade_artifact.common.readers.context_broker_inserter import InserterArtifact
+
+    class PublisherArtifact(spade_artifact.Artifact):
+        def __init__(self, jid, passwd, payload):
+            super().__init__(jid, passwd)
+            self.payload = payload
+
+        async def setup(self):
+            self.presence.set_available()
+            await asyncio.sleep(2)
+
+        async def run(self):
+            while True:
+                if self.presence.is_available():
+                    payload_json = json.dumps(self.payload)
+                    logger.info(f"Publishing data: {payload_json}")
+                    await self.publish(str(payload_json))
+                await asyncio.sleep(360)
+
+    async def main():
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+
+        XMPP_SERVER = config["XMPP_SERVER"]
+        publisher_name = config["publisher_artifact_name"]
+        publisher_jid = f"{publisher_name}@{XMPP_SERVER}"
+        publisher_passwd = getpass.getpass(prompt="Password for publisher artifact> ")
+
+        with open('payload.json', 'r') as payload_file:
+            payload = json.load(payload_file)
+
+        with open('json_template.json', 'r') as json_template_file:
+            json_template = json.load(json_template_file)
+
+        publisher = PublisherArtifact(publisher_jid, publisher_passwd, payload)
+
+        subscriber_name = config["subscriber_artifact_name"]
+        subscriber_jid = f"{subscriber_name}@{XMPP_SERVER}"
+        subscriber_passwd = getpass.getpass(prompt="Password for subscriber artifact> ")
+
+        orion_ip = config["orion_ip"]
+        project_name = config["project_name"]
+
+        subscriber = InserterArtifact(subscriber_jid, subscriber_passwd, publisher_jid, orion_ip,
+                                      project_name, json_template=json_template)
+
+        await publisher.start()
+        await subscriber.start()
+
+        await asyncio.gather(publisher.join(), subscriber.join())
+
+        await publisher.stop()
+        await subscriber.stop()
+
+        print("Agents and Artifacts have been stopped")
+
+    if __name__ == "__main__":
+        asyncio.run(main())
+
+Explanation
+-----------
+
+1. **Configuration**:
+    - Load the configuration details from `config.json`.
+    - Extract necessary parameters like `XMPP_SERVER`, `publisher_artifact_name`, `subscriber_artifact_name`, `orion_ip`, and `project_name`.
+
+2. **Artifact Initialization**:
+    - Initialize the `PublisherArtifact` with its Jabber ID, password, and payload.
+    - Initialize the `InserterArtifact` with its Jabber ID, password, the publisher's Jabber ID, Orion IP, project name, and JSON template.
+
+3. **Artifact Setup**:
+    - Start both the publisher and subscriber artifacts.
+
+
+This example demonstrates how to configure, initialize, and run the `ContextBrokerInserter` in conjunction with a `PublisherArtifact` to publish and insert data into an Orion Context Broker.
+
+
+.. warning::
+
+    This example requires a configured Context Broker on a server to function properly.
+    The example is not standalone and depends on a FIWARE Context Broker and a MongoDB database.
