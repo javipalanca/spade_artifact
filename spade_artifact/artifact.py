@@ -65,7 +65,9 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         # self.loop = None #asyncio.new_event_loop()
 
-        self.queue = asyncio.Queue(loop=self.loop)
+        self.queue = asyncio.Queue()
+        if not self.queue._loop:
+            self.queue._loop = self.loop
         self._alive = Event()
         self.subscriptions = {}
 
