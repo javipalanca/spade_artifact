@@ -1,8 +1,8 @@
 import collections
-
 import pytest
-from asynctest import Mock
+from tests.compat import Mock
 from spade.behaviour import OneShotBehaviour
+import asyncio
 
 from spade_artifact.agent import ArtifactComponent
 from tests.factories import MockedConnectedArtifactAgentFactory
@@ -15,10 +15,10 @@ def test_custom_pubsub_server():
     agent = MockedConnectedArtifactAgentFactory(pubsub_server="custom.pubsub.server")
     assert agent.pubsub_server == "custom.pubsub.server"
 
-
 @pytest.mark.asyncio
 async def test_artifacts_component():
     agent = MockedConnectedArtifactAgentFactory()
+    agent.loop = asyncio.get_running_loop()
     await agent.start()
 
     try:
@@ -27,10 +27,10 @@ async def test_artifacts_component():
     finally:
         await agent.stop()
 
-
 @pytest.mark.asyncio
 async def test_focus():
     agent = MockedConnectedArtifactAgentFactory()
+    agent.loop = asyncio.get_running_loop()
     await agent.start()
 
     try:
@@ -50,10 +50,10 @@ async def test_focus():
     finally:
         await agent.stop()
 
-
 @pytest.mark.asyncio
 async def test_ignore():
     agent = MockedConnectedArtifactAgentFactory()
+    agent.loop = asyncio.get_running_loop()
     await agent.start()
 
     try:
@@ -74,11 +74,10 @@ async def test_ignore():
     finally:
         await agent.stop()
 
-
 @pytest.mark.asyncio
 async def test_set_on_item_published():
-    # Setup
     agent = MockedConnectedArtifactAgentFactory()
+    agent.loop = asyncio.get_running_loop()
     await agent.start()
 
     try:
@@ -106,6 +105,6 @@ async def test_set_on_item_published():
             message=None,
         )
 
-        assert callback.called_with("artifact@server", "payload")
+        callback.assert_called_with("artifact@server", "payload")
     finally:
         await agent.stop()

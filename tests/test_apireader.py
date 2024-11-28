@@ -1,12 +1,15 @@
-import asynctest
-
+from tests.compat import AsyncTestCase, AsyncMock, MagicMock
 from aioresponses import aioresponses
 from spade_artifact.common.readers.apireader import APIReaderArtifact
 
+class TestAPIReaderArtifact(AsyncTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_url = "http://mockapi.com/data"
+        self.api_response_data = [{"key": "value1"}, {"key": "value2"}]
 
-class TestAPIReaderArtifact(asynctest.TestCase):
-
-    async def setUp(self):
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
         self.mock_url = "http://mockapi.com/data"
         self.api_response_data = [{"key": "value1"}, {"key": "value2"}]
 
@@ -14,11 +17,11 @@ class TestAPIReaderArtifact(asynctest.TestCase):
     async def test_api_reading(self, mocked_responses):
         mocked_responses.get(self.mock_url, payload=self.api_response_data, status=200)
 
-        artifact = APIReaderArtifact("jid@test.com", "password", self.mock_url, http_method="GET")
+        artifact = APIReaderArtifact("jid@test.com", "password", api_url=self.mock_url, http_method="GET")
 
-        artifact.publish = asynctest.CoroutineMock()
-        artifact.presence = asynctest.MagicMock()
-        artifact.presence.set_available = asynctest.CoroutineMock()
+        artifact.publish = AsyncMock()
+        artifact.presence = MagicMock()
+        artifact.presence.set_available = AsyncMock()
 
         await artifact.run()
 
