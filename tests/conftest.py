@@ -10,8 +10,7 @@ def jid():
 
 
 @pytest.fixture
-def agent():
+async def agent():
     agent = MockedConnectedArtifactAgentFactory()
-    future = agent.start()
-    future.result()
+    await agent.start()
     return agent
