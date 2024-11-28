@@ -323,9 +323,6 @@ async def test_get_contacts_with_presence_unavailable(
     assert "presence" not in contacts[bare_jid]
     await artifact.stop()
 
-#---------------------------------
-#TODO : de aqui para abajo, aun queda por modificar, no se ejecutan los tests
-
 @pytest.mark.asyncio
 async def test_get_contact():
     artifact = MockedConnectedArtifactFactory()
