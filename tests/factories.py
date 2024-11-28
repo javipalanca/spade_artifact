@@ -1,10 +1,13 @@
 import factory
 from aioxmpp import PresenceShow, PresenceState
-from asynctest import CoroutineMock, Mock
 from spade.agent import Agent
+import sys
+if sys.version_info >= (3, 8):
+    from unittest.mock import AsyncMock as CoroutineMock, Mock
+else:
+    from asynctest import CoroutineMock, Mock
 
 from spade_artifact import Artifact, ArtifactMixin
-
 
 class MockedConnectedArtifact(Artifact):
     def __init__(
@@ -37,6 +40,14 @@ class MockedConnectedArtifact(Artifact):
     async def run(self):
         self.set("test_passed", True)
         self.kill()
+
+    async def start(self, auto_register=True):
+        """Override start to ensure proper event loop handling"""
+        try:
+            return await self._async_start(auto_register=auto_register)
+        except Exception as e:
+            self.kill()
+            raise e
 
 
 class MockedConnectedArtifactFactory(factory.Factory):
