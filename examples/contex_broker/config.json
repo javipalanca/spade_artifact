@@ -1,7 +1,0 @@
-{
-    "XMPP_SERVER": "YOUR_XMPP_SERVER",
-    "publisher_artifact_name": "publisher_artifact",
-    "subscriber_artifact_name": "subscriber_artifact",
-    "orion_ip": "YOUR_CONTEXT_BROKER_IP",
-    "project_name": "PROJECT_NAME"
-}
