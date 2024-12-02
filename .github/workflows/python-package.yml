@@ -30,22 +30,29 @@ jobs:
       fail-fast: false
       matrix:
         name:
+          - "ubuntu-py38"
           - "ubuntu-py39"
           - "ubuntu-py310"
           - "ubuntu-py311"
           - "ubuntu-py312"
 
+          - "macos-py38"
           - "macos-py39"
           - "macos-py310"
           - "macos-py311"
           - "macos-py312"
 
+          - "windows-py38"
           - "windows-py39"
           - "windows-py310"
           - "windows-py311"
           - "windows-py312"
 
         include:
+          - name: "ubuntu-py38"
+            python: "3.8"
+            os: ubuntu-latest
+            tox_env: "py38"
           - name: "ubuntu-py39"
             python: "3.9"
             os: ubuntu-latest
@@ -63,6 +70,10 @@ jobs:
             os: ubuntu-latest
             tox_env: "py312"
 
+          - name: "macos-py38"
+            python: "3.8"
+            os: macos-latest
+            tox_env: "py38"
           - name: "macos-py39"
             python: "3.9"
             os: macos-latest
@@ -80,6 +91,10 @@ jobs:
             os: macos-latest
             tox_env: "py312"
 
+          - name: "windows-py38"
+            python: "3.8"
+            os: windows-latest
+            tox_env: "py38"
           - name: "windows-py39"
             python: "3.9"
             os: windows-latest
@@ -123,7 +138,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -138,7 +153,7 @@ jobs:
     - name: Run coverage
       run: |
         coverage erase
-        coverage run --source=spade -m py.test
+        coverage run --source=spade_artifact -m pytest
     - name: Coveralls
       uses: javipalanca/coveralls-python-action@develop
       with:
