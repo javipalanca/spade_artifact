@@ -91,7 +91,9 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         # Set the publication handler once the connection is established
         self.pubsub.set_on_item_published(self.on_item_published)
+
     async def start(self, auto_register: bool = True) -> None:
+
         """
         Tells the container to start this agent.
         It returns a coroutine or a future depending on whether it is called from a coroutine or a synchronous method.
@@ -102,6 +104,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return await self._async_start(auto_register=auto_register)
 
     async def _async_start(self, auto_register=True):
+
         """
         Starts the agent from a coroutine. This fires some actions:
 
@@ -151,6 +154,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
             await self.pubsub.create(self.pubsub_server, f"{self._node}")
         except XMPPCancelError as e:
             logger.info(f"Node {self._node} already registered")
+            raise e
         except XMPPAuthError as e:
             logger.error(f"Artifact {self._node} is not allowed to publish properties.")
             raise e
@@ -389,5 +393,3 @@ class Artifact(PubSubMixin, AbstractArtifact):
         await self.pubsub.unsubscribe(self.pubsub_server, str(target_artifact_jid))
         if target_artifact_jid in self.subscriptions:
             del self.subscriptions[target_artifact_jid]
-
-

@@ -253,8 +253,9 @@ class InserterArtifact(spade_artifact.Artifact):
                             if exceptions[k] not in v:
                                 keys_to_remove.append(k)
                         else:
-                            if (('value' not in v and 'coordinates' not in v and 'object' not in v) and
-                                ('type' in v and k != 'type' and k != 'id')):
+                            condition1 = 'value' not in v and 'coordinates' not in v and 'object' not in v
+                            condition2 = 'type' in v and k != 'type' and k != 'id'
+                            if condition1 and condition2:
                                 keys_to_remove.append(k)
                     elif isinstance(v, list):
                         clean_result(v, exceptions)
@@ -471,6 +472,7 @@ class InserterArtifact(spade_artifact.Artifact):
                     logger.error(
                         f"Failed to update entity attribute '{attribute}' with PATCH, status code: {response.status},"
                         f" response: {await response.text()}")
+
     async def run(self):
         """
         Continuously processes and sends data from the payload queue to the Orion Context Broker.

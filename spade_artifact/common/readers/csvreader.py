@@ -2,6 +2,7 @@ import pandas as pd
 import asyncio
 import spade_artifact
 
+
 class CSVReaderArtifact(spade_artifact.Artifact):
     """
     An artifact for asynchronously reading and processing data from CSV files.

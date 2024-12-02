@@ -1,9 +1,6 @@
 import asyncio
-
 from loguru import logger
-
 import spade_artifact
-
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
@@ -56,6 +53,7 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         self.client = None
         self.db = None
         self.collection = None
+
     @staticmethod
     def default_data_processor(data):
         """
@@ -70,7 +68,6 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         logger.info('default data processor started, no data transformation will be done')
         return [data]
 
-
     async def update_query(self):
         """
         This method can be overridden to update the API URL as needed.
@@ -79,11 +76,11 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         to add specific URL update logic for their application.
         """
         pass
+
     async def connect_to_database(self):
         """
         Asynchronously establishes a connection to the MongoDB database.
         """
-
         self.client = AsyncIOMotorClient(self.connection_uri)
         self.db = self.client[self.database_name]
         self.collection = self.db[self.collection_name]
@@ -119,7 +116,6 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
     async def run(self):
         """
         Asynchronously and periodically executes the MongoDB query based on `self.time_request`.
-
 
         After each iteration, the method waits for `self.time_request` seconds before the next
         execution. When the loop ends, it ensures that the client connection to MongoDB is properly closed to release

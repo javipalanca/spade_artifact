@@ -1,8 +1,8 @@
 import asyncio
 import aiohttp
 from loguru import logger
-
 import spade_artifact
+
 
 class APIReaderArtifact(spade_artifact.Artifact):
     """
@@ -29,7 +29,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         time_request(int, optional) : Time in minutes to wait for the request data update.
     """
 
-    def __init__(self, jid, passwd, api_url, data_processor = None, http_method='GET', params=None, headers=None, time_request=None):
+    def __init__(self, jid, passwd, api_url, data_processor=None, http_method='GET', params=None, headers=None, time_request=None):
         super().__init__(jid, passwd)
         self.api_url = api_url
         self.url_template = api_url
@@ -37,7 +37,7 @@ class APIReaderArtifact(spade_artifact.Artifact):
         self.http_method = http_method
         self.params = params or {}
         self.headers = headers or {}
-        self.time_request = time_request*60 if time_request is not None else time_request
+        self.time_request = time_request * 60 if time_request is not None else time_request
 
     async def update_url(self):
         """
@@ -93,5 +93,3 @@ class APIReaderArtifact(spade_artifact.Artifact):
                 continue_request = False
             else:
                 await asyncio.sleep(self.time_request)
-
-
