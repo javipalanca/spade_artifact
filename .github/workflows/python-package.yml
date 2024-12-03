@@ -141,6 +141,8 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v2
+      with:
+          fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -152,9 +154,12 @@ jobs:
         python -m pip install -r requirements.txt
     - name: Run coverage
       run: |
+        python -m pip install -e .
         coverage erase
         coverage run --source=spade_artifact -m pytest
     - name: Coveralls
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: javipalanca/coveralls-python-action@develop
       with:
         parallel: true
