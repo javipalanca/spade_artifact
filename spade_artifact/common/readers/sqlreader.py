@@ -3,7 +3,7 @@ from loguru import logger
 import spade_artifact
 import sqlite3
 import pymysql
-import psycopg2
+import psycopg
 
 
 class DatabaseQueryArtifact(spade_artifact.Artifact):
@@ -17,7 +17,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
        db_type (str): The type of the database. This parameter accepts the following values:
             - 'mysql': Indicates that the database is a MySQL database. Requires `pymysql` library.
             - 'sqlite': Indicates that the database is a SQLite database. Uses Python's built-in `sqlite3` library.
-            - 'postgresql': Indicates that the database is a PostgreSQL database. Requires `psycopg2` library.
+            - 'postgresql': Indicates that the database is a PostgreSQL database. Requires `psycopg` library.
         connection_params (dict): Details required to connect to the database. The structure of this dictionary varies based on the `db_type`:
             - For 'mysql' and 'postgresql': This dictionary should include the following keys:
                 - 'host': The hostname or IP address of the database server.
@@ -38,6 +38,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         data_processor (Callable, optional): Function to process the query results. Defaults to None.
         time_request (int, optional): Time in seconds for the query re-execution interval. Defaults to None.
     """
+
     def __init__(self, jid, password, db_type, connection_params, query, data_processor=None, time_request=None):
         super().__init__(jid, password)
         self.db_type = db_type
@@ -107,8 +108,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         self.validate_connection_params()
 
         if self.db_type == "postgresql":
-            return "dbname='{database}' user='{user}' host='{host}' password='{password}'".format(
-                **self.connection_params)
+            return self.connection_params
         elif self.db_type == "mysql":
             return self.connection_params
         elif self.db_type == "sqlite":
@@ -126,7 +126,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
             self.conn = sqlite3.connect(self.prepare_connection_string())
             self.cur = self.conn.cursor()
         elif self.db_type == "postgresql":
-            self.conn = psycopg2.connect(self.prepare_connection_string())
+            self.conn = psycopg.connect(**self.prepare_connection_string())
             self.cur = self.conn.cursor()
         elif self.db_type == "mysql":
             self.conn = pymysql.connect(**self.prepare_connection_string())
@@ -145,6 +145,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
             The data fetched from executing `self.query`.
         """
         await self.connect_to_database()
+
         self.cur.execute(self.query)
         data = self.cur.fetchall()
         return data
@@ -179,4 +180,5 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
                 if self.cur is not None:
                     self.cur.close()
                 if self.conn is not None:
-                    self.conn.close()
+                    await self.conn.close() if hasattr(self.conn, 'close') and asyncio.iscoroutinefunction(
+                        self.conn.close) else self.conn.close()
