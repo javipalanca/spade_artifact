@@ -1,7 +1,8 @@
 import pytest
 import asyncio
 from spade.message import Message
-from aioxmpp import JID
+from slixmpp import JID
+
 from tests.compat import Mock, AsyncMock
 from tests.factories import MockedConnectedArtifactFactory, MockedConnectedArtifact
 
@@ -59,7 +60,7 @@ async def test_send_msg():
     class A(MockedConnectedArtifact):
         async def run(self):
             self.client = Mock()
-            self.client.send = AsyncMock()
+            self.client.send_message = AsyncMock()
             msg = Message()
             await self.send(msg)
             self.kill()
@@ -68,11 +69,12 @@ async def test_send_msg():
     artifact.loop = asyncio.get_running_loop()
     await artifact.start()
     await artifact._async_join(timeout=1)
-    artifact.client.send.assert_called_once()
-    actual_call = artifact.client.send.call_args[0][0]
-    expected_jid = JID.fromstr("fakejid")
-    assert actual_call.from_ == expected_jid
-
+    artifact.client.send_message.assert_called_once()
+    actual_call = artifact.client.send_message.call_args[1]
+    assert 'mto' in actual_call
+    assert 'mbody' in actual_call
+    assert 'msubject' in actual_call
+    assert 'mtype' in actual_call
 
 @pytest.mark.asyncio
 async def test_receive():
@@ -114,7 +116,7 @@ async def test_mailbox_size():
     class A(MockedConnectedArtifact):
         async def run(self):
             self.client = Mock()
-            self.client.send = AsyncMock()
+            self.client.send_message = AsyncMock()
             self.msg = await self.receive(1)
             self.kill()
 

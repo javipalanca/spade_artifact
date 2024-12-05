@@ -1,12 +1,11 @@
 import pytest
-from aioxmpp import JID
-
+from slixmpp import JID
 from tests.factories import MockedConnectedArtifactAgentFactory
 
 
 @pytest.fixture
 def jid():
-    return JID.fromstr("friend@localhost/home")
+    return JID("friend@localhost/home")
 
 
 @pytest.fixture
