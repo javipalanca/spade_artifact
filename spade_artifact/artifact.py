@@ -7,11 +7,12 @@ import time
 from asyncio import Event
 from typing import Union
 
-import aiosasl
+import slixmpp
 from slixmpp import JID
 from slixmpp import Message as slixmppMessage
 from aiosasl import AuthenticationFailure
 from loguru import logger
+from spade.agent import DisconnectedException
 from spade.xmpp_client import XMPPClient
 from spade.container import Container
 from spade.message import Message
