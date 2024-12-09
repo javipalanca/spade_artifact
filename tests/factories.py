@@ -1,25 +1,27 @@
 import factory
-from aioxmpp import PresenceShow, PresenceState
+from spade.presence import PresenceShow, PresenceType
 from spade.agent import Agent
 import sys
 if sys.version_info >= (3, 8):
-    from unittest.mock import AsyncMock as CoroutineMock, Mock
+    from unittest.mock import AsyncMock as CoroutineMock, Mock, AsyncMock
 else:
-    from asynctest import CoroutineMock, Mock
+    from asynctest import CoroutineMock, Mock, AsyncMock
 
 from spade_artifact import Artifact, ArtifactMixin
 
 class MockedConnectedArtifact(Artifact):
     def __init__(
-        self, available=None, show=None, status=None, priority=0, *args, **kwargs
+        self, available=None, show=PresenceShow.NONE, status=None, priority=0, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         if status is None:
             status = {}
         self._async_connect = CoroutineMock()
         self._async_register = CoroutineMock()
-        self.conn_coro = Mock()
-        self.conn_coro.__aexit__ = CoroutineMock()
+
+        self.pubsub = Mock()
+        self.pubsub.create = AsyncMock()
+        self.pubsub.set_on_item_published = Mock()
 
         self.available = available
         self.show = show
@@ -28,14 +30,12 @@ class MockedConnectedArtifact(Artifact):
 
     async def _hook_plugin_after_connection(self, *args, **kwargs):
         await super()._hook_plugin_after_connection(*args, **kwargs)
-        self.pubsub = Mock()
-        self.pubsub.create = CoroutineMock()
+
+        pass
 
     def mock_presence(self):
         show = self.show if self.show is not None else PresenceShow.NONE
-        available = self.available if self.available is not None else False
-        state = PresenceState(available, show)
-        self.presence.presenceserver.set_presence(state, self.status, self.priority)
+        self.presence.set_presence(PresenceType.AVAILABLE, show, self.status, self.priority)
 
     async def run(self):
         self.set("test_passed", True)
@@ -57,8 +57,8 @@ class MockedConnectedArtifactFactory(factory.Factory):
     jid = "fake@jid"
     password = "fake_password"
     available = None
-    show = None
-    status = {}
+    show = PresenceShow.NONE
+    status = None
     priority = 0
 
 
@@ -67,8 +67,6 @@ class MockedConnectedArtifactAgent(ArtifactMixin, Agent):
         super().__init__(*args, **kwargs)
         self._async_connect = CoroutineMock()
         self._async_register = CoroutineMock()
-        self.conn_coro = Mock()
-        self.conn_coro.__aexit__ = CoroutineMock()
         self.stream = Mock()
 
     async def _hook_plugin_after_connection(self, *args, **kwargs):
