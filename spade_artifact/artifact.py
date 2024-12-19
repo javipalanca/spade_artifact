@@ -397,7 +397,17 @@ class Artifact(PubSubMixin, AbstractArtifact):
             message (str, optional): Additional message or data associated with the publication.
         """
         if node in self.subscriptions:
-            self.subscriptions[node](jid, item.registered_payload.data)
+            try:
+                # Extraer el texto del payload XML
+                payload_elem = item.get_payload()
+                if payload_elem is not None and len(payload_elem) > 0:
+                    payload_text = payload_elem[0].text
+                else:
+                    payload_text = ""
+
+                self.subscriptions[node](jid, payload_text)
+            except Exception as e:
+                logger.error(f"Error processing published item: {e}")
 
     async def link(self, target_artifact_jid, callback):
         """

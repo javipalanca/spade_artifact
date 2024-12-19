@@ -24,15 +24,41 @@ class ArtifactComponent:
         self.agent = agent
         self.focus_callbacks = {}
 
-    def on_item_published(self, jid, node, item, message=None):
+    def on_item_published(self, jid, node, payload):
+        """
+        Handle published items from pubsub
+        """
+
         if node in self.focus_callbacks:
-            self.focus_callbacks[node](node, item.registered_payload.data)
+            try:
+                full_jid = f"{node}@{jid.split('.', 1)[1]}"
+                self.focus_callbacks[node](full_jid, payload)
+            except Exception as e:
+                logger.error(f"Error in callback execution: {e}", exc_info=True)
+        else:
+            matching_keys = [k for k in self.focus_callbacks.keys() if k.startswith(node + '@')]
+            for key in matching_keys:
+                try:
+                    self.focus_callbacks[key](key, payload)
+                except Exception as e:
+                    logger.error(f"Error in callback execution for {key}: {e}", exc_info=True)
 
     async def focus(self, artifact_jid, callback):
-        await self.agent.pubsub.subscribe(self.agent.pubsub_server, str(artifact_jid))
+        """
+        Focus on an artifact
+        """
+        node = artifact_jid.split('@')[0] if '@' in artifact_jid else artifact_jid
+
+        await self.agent.pubsub.subscribe(self.agent.pubsub_server, node)
+        self.focus_callbacks[node] = callback
         self.focus_callbacks[artifact_jid] = callback
 
     async def ignore(self, artifact_jid):
-        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, str(artifact_jid))
+        node = artifact_jid.split('@')[0] if '@' in artifact_jid else artifact_jid
+
+        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, node)
+
+        if node in self.focus_callbacks:
+            del self.focus_callbacks[node]
         if artifact_jid in self.focus_callbacks:
             del self.focus_callbacks[artifact_jid]
