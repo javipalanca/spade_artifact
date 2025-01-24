@@ -1,6 +1,6 @@
 from loguru import logger
 from spade_pubsub import PubSubMixin
-
+from slixmpp.stanza.message import Message as SlixmppMessage
 
 class ArtifactMixin(PubSubMixin):
     def __init__(self, *args, pubsub_server=None, **kwargs):
@@ -24,41 +24,18 @@ class ArtifactComponent:
         self.agent = agent
         self.focus_callbacks = {}
 
-    def on_item_published(self, jid, node, payload):
-        """
-        Handle published items from pubsub
-        """
-
+    def on_item_published(self, msg: SlixmppMessage):
+        node = msg['pubsub_event']['items']['node']
         if node in self.focus_callbacks:
-            try:
-                full_jid = f"{node}@{jid.split('.', 1)[1]}"
-                self.focus_callbacks[node](full_jid, payload)
-            except Exception as e:
-                logger.error(f"Error in callback execution: {e}", exc_info=True)
-        else:
-            matching_keys = [k for k in self.focus_callbacks.keys() if k.startswith(node + '@')]
-            for key in matching_keys:
-                try:
-                    self.focus_callbacks[key](key, payload)
-                except Exception as e:
-                    logger.error(f"Error in callback execution for {key}: {e}", exc_info=True)
+            item = msg['pubsub_event']['items']['item']['payload']
+            jid = msg['pubsub_event']['items']['item']['publisher']
+            self.focus_callbacks[node](node, item.text)
 
     async def focus(self, artifact_jid, callback):
-        """
-        Focus on an artifact
-        """
-        node = artifact_jid.split('@')[0] if '@' in artifact_jid else artifact_jid
-
-        await self.agent.pubsub.subscribe(self.agent.pubsub_server, node)
-        self.focus_callbacks[node] = callback
+        await self.agent.pubsub.subscribe(self.agent.pubsub_server, str(artifact_jid))
         self.focus_callbacks[artifact_jid] = callback
 
     async def ignore(self, artifact_jid):
-        node = artifact_jid.split('@')[0] if '@' in artifact_jid else artifact_jid
-
-        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, node)
-
-        if node in self.focus_callbacks:
-            del self.focus_callbacks[node]
+        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, str(artifact_jid))
         if artifact_jid in self.focus_callbacks:
             del self.focus_callbacks[artifact_jid]

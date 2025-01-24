@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 import abc
 import asyncio
-import logging
-import sys
 import time
 from asyncio import Event
 from typing import Union
 
-import slixmpp
 from slixmpp import JID
-from slixmpp import Message as slixmppMessage
-from aiosasl import AuthenticationFailure
+from slixmpp.exceptions import IqError, _DEFAULT_ERROR_TYPES
+from slixmpp.stanza.message import Message as SlixmppMessage
+from slixmpp.xmlstream import tostring
 from loguru import logger
-from spade.agent import DisconnectedException
-from spade.xmpp_client import XMPPClient
+from spade.agent import AuthenticationFailure, DisconnectedException
 from spade.container import Container
 from spade.message import Message
 from spade.presence import PresenceManager
+from spade.xmpp_client import XMPPClient
 from spade_pubsub import PubSubMixin
 
 
@@ -35,7 +33,7 @@ class AbstractArtifact(object, metaclass=abc.ABCMeta):
 
 
 class Artifact(PubSubMixin, AbstractArtifact):
-    def __init__(self, jid, password, pubsub_server=None, verify_security=False):
+    def __init__(self, jid, password, pubsub_server=None, port=5222, verify_security=False):
         """
         Creates an artifact
 
@@ -45,6 +43,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
           verify_security (bool): Wether to verify or not the SSL certificates
         """
         self.jid = JID(jid)
+        self.xmpp_port = port
         self.password = password
         self.verify_security = verify_security
 
@@ -92,9 +91,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         # Set the publication handler once the connection is established
         self.pubsub.set_on_item_published(self.on_item_published)
-
     async def start(self, auto_register: bool = True) -> None:
-
         """
         Tells the container to start this agent.
         It returns a coroutine or a future depending on whether it is called from a coroutine or a synchronous method.
@@ -105,7 +102,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return await self._async_start(auto_register=auto_register)
 
     async def _async_start(self, auto_register=True):
-
         """
         Starts the agent from a coroutine. This fires some actions:
 
@@ -122,18 +118,13 @@ class Artifact(PubSubMixin, AbstractArtifact):
         await self._hook_plugin_before_connection()
 
         self.client = XMPPClient(
-            self.jid,
-            self.password,
-            self.verify_security,
-            auto_register
+            self.jid, self.password, self.verify_security, auto_register
         )
 
-
         # Presence service
-        self.presence = PresenceManager(self)
+        self.presence = PresenceManager(agent=self, approve_all=False)
 
         await self._async_connect()
-
 
         await self._hook_plugin_after_connection()
 
@@ -141,14 +132,14 @@ class Artifact(PubSubMixin, AbstractArtifact):
         try:
             self._node = str(self.jid.bare)
             await self.pubsub.create(self.pubsub_server, f"{self._node}")
-        except slixmpp.exceptions.IqError as e:
-            if e.condition == 'conflict':
+        except IqError as e:
+            if e.condition == _DEFAULT_ERROR_TYPES["conflict"]:
                 logger.info(f"Node {self._node} already registered")
-            elif e.condition == 'forbidden':
+            elif e.condition == _DEFAULT_ERROR_TYPES["forbidden"]:
                 logger.error(f"Artifact {self._node} is not allowed to publish properties.")
-                raise e
             else:
-                raise e
+                logger.error(f"Unknown error creating node: {tostring(e)}")
+            raise e
 
         await self.setup()
         self._alive.set()
@@ -181,7 +172,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         )
         self.client.add_event_handler("message", self._message_received)
 
-        self.client.connect()
+        self.client.connect(address=(self.jid.host, self.xmpp_port))
 
         done, pending = await asyncio.wait(
             [connected_task, disconnected_task, failed_auth_task],
@@ -285,13 +276,13 @@ class Artifact(PubSubMixin, AbstractArtifact):
         else:
             return None
 
-    def _message_received(self, msg: slixmppMessage):
+    def _message_received(self, msg):
         """
         Callback run when an XMPP Message is reveived.
-        The aioxmpp.Message is converted to spade.message.Message
+        The slixmpp.stanza.Message is converted to spade.message.Message
 
         Args:
-          msg (slixmpp.Messagge): the message just received.
+          msg (slixmpp.stanza.Messagge): the message just received.
 
         Returns:
             asyncio.Future: a future of the append of the message.
@@ -312,15 +303,8 @@ class Artifact(PubSubMixin, AbstractArtifact):
         if not msg.sender:
             msg.sender = str(self.jid)
             logger.debug(f"Adding artifact's jid as sender to message: {msg}")
-
         slixmpp_msg = msg.prepare()
-        slixmpp_msg['from'] = str(self.jid)
-        await self.client.send_message(
-            mto=slixmpp_msg['to'],
-            mbody=slixmpp_msg['body'],
-            msubject=slixmpp_msg.get('subject'),
-            mtype=slixmpp_msg['type']
-        )
+        await self.client.send(slixmpp_msg)
         msg.sent = True
 
     async def receive(self, timeout: float = None) -> Union[Message, None]:
@@ -386,7 +370,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
     async def publish(self, payload: str) -> None:
         await self.pubsub.publish(self.pubsub_server, self._node, payload)
 
-    def on_item_published(self, jid, node, item, message=None):
+    def on_item_published(self, msg: SlixmppMessage):
         """
         Callback to handle an item published event.
 
@@ -396,18 +380,11 @@ class Artifact(PubSubMixin, AbstractArtifact):
             item (object): The item that was published.
             message (str, optional): Additional message or data associated with the publication.
         """
+        node = msg['pubsub_event']['items']['node']
         if node in self.subscriptions:
-            try:
-                # Extraer el texto del payload XML
-                payload_elem = item.get_payload()
-                if payload_elem is not None and len(payload_elem) > 0:
-                    payload_text = payload_elem[0].text
-                else:
-                    payload_text = ""
-
-                self.subscriptions[node](jid, payload_text)
-            except Exception as e:
-                logger.error(f"Error processing published item: {e}")
+            item = msg['pubsub_event']['items']['item']['payload']
+            jid = msg['pubsub_event']['items']['item']['publisher']
+            self.subscriptions[node](jid, item)
 
     async def link(self, target_artifact_jid, callback):
         """
