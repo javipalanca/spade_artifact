@@ -33,7 +33,7 @@ class AbstractArtifact(object, metaclass=abc.ABCMeta):
 
 
 class Artifact(PubSubMixin, AbstractArtifact):
-    def __init__(self, jid, password, pubsub_server=None, verify_security=False):
+    def __init__(self, jid, password, pubsub_server=None, port=5222, verify_security=False):
         """
         Creates an artifact
 
@@ -43,6 +43,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
           verify_security (bool): Wether to verify or not the SSL certificates
         """
         self.jid = JID(jid)
+        self.xmpp_port = port
         self.password = password
         self.verify_security = verify_security
 
