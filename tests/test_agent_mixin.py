@@ -1,8 +1,11 @@
 import collections
+from unittest.mock import MagicMock
+
 import pytest
 from tests.compat import Mock
 from spade.behaviour import OneShotBehaviour
 import asyncio
+from slixmpp.stanza.message import Message as SlixmppMessage
 
 from spade_artifact.agent import ArtifactComponent
 from tests.factories import MockedConnectedArtifactAgentFactory
@@ -92,18 +95,20 @@ async def test_set_on_item_published():
         agent.add_behaviour(behav)
         await behav.join()
 
-        class Item:
-            def __init__(self, data):
-                self.data = data
-                _data = collections.namedtuple("data", "data")
-                self.registered_payload = _data(data=self.data)
+        msg = MagicMock(spec=SlixmppMessage)
+        msg.__getitem__.side_effect = lambda key: {
+            'pubsub_event': {
+                'items': {
+                    'node': "artifact@server",
+                    'item': {
+                        'payload': MagicMock(text="payload"),
+                        'publisher': "artifact@server",
+                    }
+                }
+            }
+        }.get(key, MagicMock())
 
-        agent.artifacts.on_item_published(
-            jid="artifact@server",
-            node="artifact@server",
-            item=Item("payload"),
-            message=None,
-        )
+        agent.artifacts.on_item_published(msg)
 
         callback.assert_called_with("artifact@server", "payload")
     finally:
