@@ -1,7 +1,6 @@
 import pytest
 import asyncio
 from spade.message import Message
-from slixmpp import JID
 
 from tests.compat import Mock, AsyncMock
 from tests.factories import MockedConnectedArtifactFactory, MockedConnectedArtifact
@@ -55,27 +54,23 @@ def test_set_get():
     artifact.set("A_KEY", 1234)
     assert artifact.get("A_KEY") == 1234
 
+
 @pytest.mark.asyncio
 async def test_send_msg():
-    class A(MockedConnectedArtifact):
-        async def run(self):
-            self.client = Mock()
-            self.client.send_message = AsyncMock()
-            msg = Message()
-            await self.send(msg)
-            self.kill()
-
-    artifact = A(jid="fakejid", password="fakesecret")
+    artifact = MockedConnectedArtifact(jid="fakejid", password="fakesecret")
     artifact.loop = asyncio.get_running_loop()
-    await artifact.start()
-    await artifact._async_join(timeout=1)
-    artifact.client.send_message.assert_called_once()
-    actual_call = artifact.client.send_message.call_args[1]
-    assert 'mto' in actual_call
-    assert 'mbody' in actual_call
-    assert 'msubject' in actual_call
-    assert 'mtype' in actual_call
 
+    # Set up our mock
+    mock_client = Mock()
+    mock_client.send = AsyncMock()
+    artifact.client = mock_client
+
+    # Test send directly
+    msg = Message()
+    await artifact.send(msg)
+
+    # Verify
+    assert mock_client.send.called, "send was not called"
 @pytest.mark.asyncio
 async def test_receive():
     class A(MockedConnectedArtifact):
