@@ -5,7 +5,6 @@
 import asyncio
 from unittest.mock import Mock
 
-from aioxmpp import PresenceState
 from slixmpp.stanza import Presence, Iq
 from slixmpp import JID
 import pytest
