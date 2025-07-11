@@ -2,13 +2,8 @@ from loguru import logger
 from spade_pubsub import PubSubMixin
 from slixmpp.stanza.message import Message as SlixmppMessage
 
-class ArtifactMixin(PubSubMixin):
-    def __init__(self, *args, pubsub_server=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.pubsub_server = (
-            pubsub_server if pubsub_server else f"pubsub.{self.jid.domain}"
-        )
 
+class ArtifactMixin(PubSubMixin):
     async def _hook_plugin_after_connection(self, *args, **kwargs):
         try:
             await super()._hook_plugin_after_connection(*args, **kwargs)
@@ -17,6 +12,12 @@ class ArtifactMixin(PubSubMixin):
 
         self.artifacts = ArtifactComponent(self)
         self.pubsub.set_on_item_published(self.artifacts.on_item_published)
+
+    def __init__(self, *args, pubsub_server=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pubsub_server = (
+            pubsub_server if pubsub_server else f"pubsub.{self.jid.domain}"
+        )
 
 
 class ArtifactComponent:
@@ -29,7 +30,7 @@ class ArtifactComponent:
         if node in self.focus_callbacks:
             item = msg['pubsub_event']['items']['item']['payload']
             jid = msg['pubsub_event']['items']['item']['publisher']
-            self.focus_callbacks[node](jid, item)
+            self.focus_callbacks[node](jid, item.text)
 
     async def focus(self, artifact_jid, callback):
         await self.agent.pubsub.subscribe(self.agent.pubsub_server, str(artifact_jid))
