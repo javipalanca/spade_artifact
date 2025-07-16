@@ -1,7 +1,7 @@
 import asyncio
 import random
 import getpass
-
+import spade
 from loguru import logger
 from spade.agent import Agent
 
@@ -69,22 +69,25 @@ class ConsumerAgent(ArtifactMixin, Agent):
         logger.info("Agent ready")
 
 
+async def main():
+
+        XMPP_SERVER = input("XMPP Server> ")
+        artifact_jid = f"{input('Artifact name> ')}@{XMPP_SERVER}"
+        artifact_passwd = getpass.getpass()
+
+        agent_jid = f"{input('Agent name> ')}@{XMPP_SERVER}"
+        agent_passwd = getpass.getpass()
+
+        artifact = RandomGeneratorArtifact(artifact_jid, artifact_passwd)
+        await artifact.start()
+
+        agent = ConsumerAgent(jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid)
+        await agent.start()
+
+        await artifact.join()
+
+        await artifact.stop()
+        await agent.stop()
+
 if __name__ == "__main__":
-    XMPP_SERVER = input("XMPP Server>")
-    artifact_jid = f"{input('Artifact name> ')}@{XMPP_SERVER}"
-    artifact_passwd = getpass.getpass()
-
-    agent_jid = f"{input('Agent name> ')}@{XMPP_SERVER}"
-    agent_passwd = getpass.getpass()
-
-    agent = ConsumerAgent(
-        jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid
-    )
-    agent.start()
-
-    artifact = RandomGeneratorArtifact(artifact_jid, artifact_passwd)
-
-    future = artifact.start()
-    future.result()
-
-    artifact.join()
+    spade.run(main())

@@ -9,6 +9,7 @@ Welcome to spade-artifact's documentation!
    installation
    usage
    api
+   readers
    contributing
    authors
    history
