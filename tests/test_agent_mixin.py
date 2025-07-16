@@ -1,6 +1,8 @@
 import collections
+from unittest.mock import Mock
+from xml.etree.ElementTree import Element
 
-from asynctest import Mock
+from slixmpp.stanza.message import Message as SlixmppMessage
 from spade.behaviour import OneShotBehaviour
 
 from spade_artifact.agent import ArtifactComponent
@@ -22,7 +24,7 @@ def test_artifacts_component(agent):
     assert agent.artifacts.focus_callbacks == {}
 
 
-def test_focus(agent):
+async def test_focus(agent):
     callback = Mock()
 
     class FocusBehaviour(OneShotBehaviour):
@@ -32,14 +34,14 @@ def test_focus(agent):
 
     behav = FocusBehaviour()
     agent.add_behaviour(behav)
-    behav.join()
-    agent.stop()
+    await behav.join()
+    await agent.stop()
     agent.pubsub.subscribe.assert_called_with(agent.pubsub_server, "artifact@server")
 
     assert agent.artifacts.focus_callbacks["artifact@server"] == callback
 
 
-def test_ignore(agent):
+async def test_ignore(agent):
     callback = Mock()
 
     class FocusBehaviour(OneShotBehaviour):
@@ -49,14 +51,14 @@ def test_ignore(agent):
 
     behav = FocusBehaviour()
     agent.add_behaviour(behav)
-    behav.join()
-    agent.stop()
+    await behav.join()
+    await agent.stop()
     agent.pubsub.unsubscribe.assert_called_with(agent.pubsub_server, "artifact@server")
 
     assert "artifact@server" not in agent.artifacts.focus_callbacks
 
 
-def test_set_on_item_published(agent):
+async def test_set_on_item_published(agent):
     callback = Mock()
 
     class FocusBehaviour(OneShotBehaviour):
@@ -65,7 +67,7 @@ def test_set_on_item_published(agent):
 
     behav = FocusBehaviour()
     agent.add_behaviour(behav)
-    behav.join()
+    await behav.join()
 
     class Item:
         def __init__(self, data):
@@ -73,12 +75,13 @@ def test_set_on_item_published(agent):
             _data = collections.namedtuple("data", "data")
             self.registered_payload = _data(data=self.data)
 
-    agent.artifacts.on_item_published(
-        jid="artifact@server",
-        node="artifact@server",
-        item=Item("payload"),
-        message=None,
-    )
+    msg = SlixmppMessage()
+    msg['pubsub_event']['items']['node'] = "artifact@server"
+    msg['pubsub_event']['items']['item']['publisher'] = "artifact@server"
+    msg['pubsub_event']['items']['item']['payload'] = Element("{}",)
+    msg['pubsub_event']['items']['item']['payload'].text = "payload"
 
-    assert callback.called_with("artifact@server", "payload")
-    agent.stop()
+    agent.artifacts.on_item_published(msg)
+
+    callback.assert_called_with("artifact@server", "payload")
+    await agent.stop()

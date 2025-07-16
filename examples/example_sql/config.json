@@ -1,0 +1,10 @@
+
+{
+  "XMPP_SERVER": "your_xmpp_server",
+  "artifact_name": "your_artifact_name",
+  "agent_name": "your_agent_name",
+  "db_type": "sqlite",
+  "connection_params" : {
+        "database": "mydatabase.db"},
+  "query" : "SELECT name, date, location FROM events"
+}

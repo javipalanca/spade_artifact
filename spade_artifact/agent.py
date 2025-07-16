@@ -1,5 +1,6 @@
 from loguru import logger
 from spade_pubsub import PubSubMixin
+from slixmpp.stanza.message import Message as SlixmppMessage
 
 
 class ArtifactMixin(PubSubMixin):
@@ -24,9 +25,12 @@ class ArtifactComponent:
         self.agent = agent
         self.focus_callbacks = {}
 
-    def on_item_published(self, jid, node, item, message=None):
+    def on_item_published(self, msg: SlixmppMessage):
+        node = msg["pubsub_event"]["items"]["node"]
         if node in self.focus_callbacks:
-            self.focus_callbacks[node](node, item.registered_payload.data)
+            item = msg["pubsub_event"]["items"]["item"]["payload"]
+            jid = msg["pubsub_event"]["items"]["item"]["publisher"]
+            self.focus_callbacks[node](jid, item.text)
 
     async def focus(self, artifact_jid, callback):
         await self.agent.pubsub.subscribe(self.agent.pubsub_server, str(artifact_jid))
