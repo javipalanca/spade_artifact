@@ -7,6 +7,7 @@ import sqlite3
 import pymysql
 import psycopg2
 
+
 class DatabaseQueryArtifact(spade_artifact.Artifact):
     """
     An artifact for executing and processing database queries.
@@ -39,12 +40,26 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         data_processor (Callable, optional): Function to process the query results. Defaults to None.
         time_request (int, optional): Time in seconds for the query re-execution interval. Defaults to None.
     """
-    def __init__(self,jid, password, db_type, connection_params, query, data_processor=None, time_request=None):
+
+    def __init__(
+        self,
+        jid,
+        password,
+        db_type,
+        connection_params,
+        query,
+        data_processor=None,
+        time_request=None,
+    ):
         super().__init__(jid, password)
         self.db_type = db_type
         self.connection_params = connection_params
         self.query = query
-        self.data_processor = data_processor if data_processor is not None else self.default_data_processor
+        self.data_processor = (
+            data_processor
+            if data_processor is not None
+            else self.default_data_processor
+        )
         self.time_request = time_request
         self.conn = None
         self.cur = None
@@ -60,7 +75,9 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         Returns:
             A list containing the original data.
         """
-        logger.info('default data processor started, no data transformation will be done')
+        logger.info(
+            "default data processor started, no data transformation will be done"
+        )
         return [data]
 
     async def update_query(self):
@@ -79,20 +96,29 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
             ValueError: If required parameters are missing or if there's any issue with the parameters provided.
         """
         if self.db_type == "postgresql":
-            required_keys = ['database', 'user', 'host', 'password']
+            required_keys = ["database", "user", "host", "password"]
             for key in required_keys:
                 if key not in self.connection_params or not self.connection_params[key]:
-                    raise ValueError(f"Missing or empty '{key}' in connection parameters for PostgreSQL.")
+                    raise ValueError(
+                        f"Missing or empty '{key}' in connection parameters for PostgreSQL."
+                    )
 
         elif self.db_type == "mysql":
-            required_keys = ['host', 'user', 'password', 'database']
+            required_keys = ["host", "user", "password", "database"]
             for key in required_keys:
                 if key not in self.connection_params or not self.connection_params[key]:
-                    raise ValueError(f"Missing or empty '{key}' in connection parameters for MySQL.")
+                    raise ValueError(
+                        f"Missing or empty '{key}' in connection parameters for MySQL."
+                    )
 
         elif self.db_type == "sqlite":
-            if 'database' not in self.connection_params or not self.connection_params['database']:
-                raise ValueError("Missing or empty 'database' in connection parameters for SQLite.")
+            if (
+                "database" not in self.connection_params
+                or not self.connection_params["database"]
+            ):
+                raise ValueError(
+                    "Missing or empty 'database' in connection parameters for SQLite."
+                )
 
         else:
             raise ValueError(f"Unsupported database type: {self.db_type}")
@@ -109,14 +135,14 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
 
         if self.db_type == "postgresql":
             return "dbname='{database}' user='{user}' host='{host}' password='{password}'".format(
-                **self.connection_params)
+                **self.connection_params
+            )
         elif self.db_type == "mysql":
             return self.connection_params
         elif self.db_type == "sqlite":
-            return self.connection_params['database']
+            return self.connection_params["database"]
 
     async def connect_to_database(self):
-
         """
         Asynchronously establishes a connection to the database using the appropriate library
         based on `db_type`.
@@ -136,8 +162,8 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
             self.cur = self.conn.cursor()
         else:
             raise ValueError("Unsupported database type")
-    async def execute_query(self):
 
+    async def execute_query(self):
         """
         Asynchronously executes the database query and fetches the results.
 
@@ -187,6 +213,3 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
                     self.cur.close()
                 if self.conn is not None:
                     self.conn.close()
-
-
-

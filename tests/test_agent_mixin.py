@@ -83,5 +83,5 @@ async def test_set_on_item_published(agent):
 
     agent.artifacts.on_item_published(msg)
 
-    assert callback.called_with("artifact@server", "payload")
+    callback.assert_called_with("artifact@server", "payload")
     await agent.stop()

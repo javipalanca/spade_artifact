@@ -77,11 +77,11 @@ async def test_send_msg():
     message = MagicMock()
     message_prepare = MagicMock()
     message.prepare.return_value = message_prepare
+    message_prepare.send = MagicMock()
 
     class A(MockedConnectedArtifact):
         async def run(self):
             self.client = MagicMock()
-            self.client.send = AsyncMock()
             await self.send(message)
             self.kill()
 
@@ -91,7 +91,7 @@ async def test_send_msg():
     await artifact.start()
     await artifact.join()
 
-    artifact.client.send.assert_called_with(message_prepare)
+    assert message_prepare.send.called
     message.prepare.assert_called_with(artifact.client)
 
 

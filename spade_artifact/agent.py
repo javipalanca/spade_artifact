@@ -26,10 +26,10 @@ class ArtifactComponent:
         self.focus_callbacks = {}
 
     def on_item_published(self, msg: SlixmppMessage):
-        node = msg['pubsub_event']['items']['node']
+        node = msg["pubsub_event"]["items"]["node"]
         if node in self.focus_callbacks:
-            item = msg['pubsub_event']['items']['item']['payload']
-            jid = msg['pubsub_event']['items']['item']['publisher']
+            item = msg["pubsub_event"]["items"]["item"]["payload"]
+            jid = msg["pubsub_event"]["items"]["item"]["publisher"]
             self.focus_callbacks[node](jid, item.text)
 
     async def focus(self, artifact_jid, callback):

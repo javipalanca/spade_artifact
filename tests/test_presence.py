@@ -176,7 +176,7 @@ async def test_get_contacts(jid):
     assert type(contacts[bare_jid]) is spade.presence.Contact
     assert contacts[bare_jid].name == "My Friend"
     assert contacts[bare_jid].subscription == "both"
-    assert contacts[bare_jid].ask is 'none'
+    assert contacts[bare_jid].ask == 'none'
     assert contacts[bare_jid].groups == []
 
 
@@ -300,7 +300,7 @@ async def test_get_contact(jid):
     assert contact.name == "My Friend"
     assert contact.subscription == "both"
     assert contact.is_subscribed()
-    assert contact.ask is 'none'
+    assert contact.ask == 'none'
     assert contact.groups == []
 
 

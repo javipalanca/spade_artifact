@@ -1,5 +1,3 @@
-import asyncio
-
 import factory
 from unittest.mock import AsyncMock, Mock
 from spade.presence import PresenceShow

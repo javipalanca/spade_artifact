@@ -5,11 +5,9 @@ import time
 from asyncio import Event
 from typing import Union, Optional
 
-import spade.presence
-from slixmpp import JID, __version_info__
+from slixmpp import JID
 from slixmpp.exceptions import IqError, _DEFAULT_ERROR_TYPES
 from slixmpp.stanza.message import Message as SlixmppMessage
-from slixmpp.xmlstream import tostring
 from loguru import logger
 from spade.agent import AuthenticationFailure, DisconnectedException
 from spade.container import Container
@@ -34,7 +32,9 @@ class AbstractArtifact(object, metaclass=abc.ABCMeta):
 
 
 class Artifact(PubSubMixin, AbstractArtifact):
-    def __init__(self, jid, password, pubsub_server=None, port=5222, verify_security=False):
+    def __init__(
+        self, jid, password, pubsub_server=None, port=5222, verify_security=False
+    ):
         """
         Creates an artifact
 
@@ -133,7 +133,9 @@ class Artifact(PubSubMixin, AbstractArtifact):
             if e.condition == _DEFAULT_ERROR_TYPES["conflict"]:
                 logger.info(f"Node {self._node} already registered")
             elif e.condition == _DEFAULT_ERROR_TYPES["forbidden"]:
-                logger.error(f"Artifact {self._node} is not allowed to publish properties.")
+                logger.error(
+                    f"Artifact {self._node} is not allowed to publish properties."
+                )
             else:
                 logger.error(f"Error creating node: {e.format()}")
             raise e
@@ -143,7 +145,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         asyncio.run_coroutine_threadsafe(self.run(), loop=self.loop)
 
     async def _async_connect(self):  # pragma: no cover
-        """ connect and authenticate to the XMPP server. Async mode. """
+        """connect and authenticate to the XMPP server. Async mode."""
 
         if self.client is not None:
             self.client.connected_event = asyncio.Event()
@@ -217,7 +219,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
     @property
     def name(self):
-        """ Returns the name of the artifact (the string before the '@') """
+        """Returns the name of the artifact (the string before the '@')"""
         return self.jid.node
 
     async def stop(self) -> None:
@@ -228,7 +230,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return await self._async_stop()
 
     async def _async_stop(self):
-        """ Stops an artifact and kills all its behaviours. """
+        """Stops an artifact and kills all its behaviours."""
         if self.presence:
             self.presence.set_unavailable()
 
@@ -300,7 +302,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
             msg.sender = str(self.jid)
             logger.debug(f"Adding artifact's jid as sender to message: {msg}")
         slixmpp_msg = msg.prepare(self.client)
-        self.client.send(slixmpp_msg)
+        slixmpp_msg.send()
         msg.sent = True
 
     async def receive(self, timeout: float = None) -> Union[Message, None]:
@@ -339,7 +341,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return self.queue.qsize()
 
     def join(self, timeout=None):
-
         try:
             in_coroutine = asyncio.get_event_loop() == self.loop
         except RuntimeError:  # pragma: no cover
@@ -364,7 +365,9 @@ class Artifact(PubSubMixin, AbstractArtifact):
                 raise TimeoutError
 
     async def publish(self, payload: str) -> None:
-        await self.pubsub.publish(self.pubsub_server, self._node, payload, ifrom=self.jid.bare)
+        await self.pubsub.publish(
+            self.pubsub_server, self._node, payload, ifrom=self.jid.bare
+        )
 
     def on_item_published(self, msg: SlixmppMessage):
         """
@@ -376,10 +379,10 @@ class Artifact(PubSubMixin, AbstractArtifact):
             item (object): The item that was published.
             message (str, optional): Additional message or data associated with the publication.
         """
-        node = msg['pubsub_event']['items']['node']
+        node = msg["pubsub_event"]["items"]["node"]
         if node in self.subscriptions:
-            item = msg['pubsub_event']['items']['item']['payload']
-            jid = msg['pubsub_event']['items']['item']['publisher']
+            item = msg["pubsub_event"]["items"]["item"]["payload"]
+            jid = msg["pubsub_event"]["items"]["item"]["publisher"]
             self.subscriptions[node](jid, item)
 
     async def link(self, target_artifact_jid, callback):
@@ -403,5 +406,3 @@ class Artifact(PubSubMixin, AbstractArtifact):
         await self.pubsub.unsubscribe(self.pubsub_server, str(target_artifact_jid))
         if target_artifact_jid in self.subscriptions:
             del self.subscriptions[target_artifact_jid]
-
-

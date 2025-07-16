@@ -4,6 +4,7 @@ from loguru import logger
 
 import spade_artifact
 
+
 class APIReaderArtifact(spade_artifact.Artifact):
     """
     An artifact for asynchronously reading and processing data from an API endpoint.
@@ -29,15 +30,31 @@ class APIReaderArtifact(spade_artifact.Artifact):
         time_request(int, optional) : Time in minutes to wait for the request data update.
     """
 
-    def __init__(self, jid, passwd, api_url, data_processor = None, http_method='GET', params=None, headers=None, time_request=None):
+    def __init__(
+        self,
+        jid,
+        passwd,
+        api_url,
+        data_processor=None,
+        http_method="GET",
+        params=None,
+        headers=None,
+        time_request=None,
+    ):
         super().__init__(jid, passwd)
         self.api_url = api_url
         self.url_template = api_url
-        self.data_processor = data_processor if data_processor is not None else self.default_data_processor
+        self.data_processor = (
+            data_processor
+            if data_processor is not None
+            else self.default_data_processor
+        )
         self.http_method = http_method
         self.params = params or {}
         self.headers = headers or {}
-        self.time_request = time_request*60 if time_request is not None else time_request
+        self.time_request = (
+            time_request * 60 if time_request is not None else time_request
+        )
 
     async def update_url(self):
         """
@@ -59,7 +76,9 @@ class APIReaderArtifact(spade_artifact.Artifact):
         Returns:
             A list containing the original data.
         """
-        logger.info('default data processor started, no data transformation will be done')
+        logger.info(
+            "default data processor started, no data transformation will be done"
+        )
         return [data]
 
     async def setup(self):
@@ -78,8 +97,12 @@ class APIReaderArtifact(spade_artifact.Artifact):
         while continue_request:
             await self.update_url()
             async with aiohttp.ClientSession() as session:
-                async with session.request(self.http_method, self.api_url, params=self.params,
-                                           headers=self.headers) as response:
+                async with session.request(
+                    self.http_method,
+                    self.api_url,
+                    params=self.params,
+                    headers=self.headers,
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
                         processed_data = await self.data_processor(data)
@@ -87,11 +110,11 @@ class APIReaderArtifact(spade_artifact.Artifact):
                         for message in processed_data:
                             await self.publish(message)
                     else:
-                        await self.publish(f"Failed to retrieve data, status code: {response.status}")
+                        await self.publish(
+                            f"Failed to retrieve data, status code: {response.status}"
+                        )
 
             if self.time_request is None:
                 continue_request = False
             else:
                 await asyncio.sleep(self.time_request)
-
-

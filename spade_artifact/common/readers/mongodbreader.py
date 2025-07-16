@@ -44,18 +44,34 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         time_request (int, optional): Time in seconds for the operation re-execution interval. Defaults to None.
     """
 
-    def __init__(self, connection_uri, database_name, collection_name, operation, query, jid, password, data_processor=None, time_request=None):
+    def __init__(
+        self,
+        connection_uri,
+        database_name,
+        collection_name,
+        operation,
+        query,
+        jid,
+        password,
+        data_processor=None,
+        time_request=None,
+    ):
         super().__init__(jid, password)
         self.connection_uri = connection_uri
         self.database_name = database_name
         self.collection_name = collection_name
         self.operation = operation
         self.query = query
-        self.data_processor = data_processor if data_processor is not None else self.default_data_processor
+        self.data_processor = (
+            data_processor
+            if data_processor is not None
+            else self.default_data_processor
+        )
         self.time_request = time_request
         self.client = None
         self.db = None
         self.collection = None
+
     @staticmethod
     def default_data_processor(data):
         """
@@ -67,9 +83,10 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         Returns:
             A list containing the original data.
         """
-        logger.info('default data processor started, no data transformation will be done')
+        logger.info(
+            "default data processor started, no data transformation will be done"
+        )
         return [data]
-
 
     async def update_query(self):
         """
@@ -79,6 +96,7 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         to add specific URL update logic for their application.
         """
         pass
+
     async def connect_to_database(self):
         """
         Asynchronously establishes a connection to the MongoDB database.
@@ -100,17 +118,19 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         """
         await self.connect_to_database()
 
-        if self.operation == 'find':
+        if self.operation == "find":
             cursor = self.collection.find(self.query)
             data = await cursor.to_list(length=None)
             return data
-        elif self.operation == 'insert':
+        elif self.operation == "insert":
             result = self.collection.insert_one(self.query)
             return result.inserted_id
-        elif self.operation == 'update':
-            result = self.collection.update_many(self.query.get('filter', {}), self.query.get('update', {}))
+        elif self.operation == "update":
+            result = self.collection.update_many(
+                self.query.get("filter", {}), self.query.get("update", {})
+            )
             return result.modified_count
-        elif self.operation == 'delete':
+        elif self.operation == "delete":
             result = self.collection.delete_many(self.query)
             return result.deleted_count
         else:

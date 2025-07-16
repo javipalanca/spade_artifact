@@ -1,7 +1,7 @@
 import pytest
 from slixmpp.jid import JID
 
-from tests.factories import MockedConnectedArtifactAgentFactory
+from .factories import MockedConnectedArtifactAgentFactory
 
 
 @pytest.fixture
