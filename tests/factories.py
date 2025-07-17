@@ -1,13 +1,7 @@
 import factory
-from spade.presence import PresenceShow, PresenceType
+from unittest.mock import AsyncMock, Mock
+from spade.presence import PresenceShow
 from spade.agent import Agent
-import sys
-
-if sys.version_info >= (3, 8):
-    from unittest.mock import AsyncMock as CoroutineMock, Mock, AsyncMock
-else:
-    from asynctest import CoroutineMock, Mock
-
 from spade_artifact import Artifact, ArtifactMixin
 
 
@@ -18,10 +12,8 @@ class MockedConnectedArtifact(Artifact):
         super().__init__(*args, **kwargs)
         if status is None:
             status = {}
-        self._async_connect = CoroutineMock()
-        self._async_register = CoroutineMock()
-        self.conn_coro = Mock()
-        self.conn_coro.__aexit__ = CoroutineMock()
+        self._async_connect = AsyncMock()
+        self._async_register = AsyncMock()
 
         self.client = Mock()
         self.client.send = Mock()
@@ -39,19 +31,13 @@ class MockedConnectedArtifact(Artifact):
             self.client.send = AsyncMock()
 
         self.pubsub = Mock()
-        self.pubsub.create = CoroutineMock(return_value=True)
-        self.pubsub.publish = CoroutineMock(return_value=True)
-        self.pubsub.set_on_item_published = Mock()
-        self.pubsub.subscribe = CoroutineMock(return_value=True)
-        self.pubsub.unsubscribe = CoroutineMock(return_value=True)
-
-        mock_pubsub = Mock()
-        mock_pubsub.create_node = CoroutineMock(return_value=True)
-        self.pubsub.pubsub = mock_pubsub
+        self.pubsub.create = AsyncMock()
 
     def mock_presence(self):
         show = self.show if self.show is not None else PresenceShow.NONE
-        self.presence.set_presence(PresenceType.AVAILABLE, show, self.status, self.priority)
+        status = self.status if self.status is not None else ""
+        priority = self.priority if self.priority is not None else 0
+        self.presence.set_presence(show=show, status=status, priority=priority)
 
     async def run(self):
         self.set("test_passed", True)
@@ -81,17 +67,14 @@ class MockedConnectedArtifactFactory(factory.Factory):
 class MockedConnectedArtifactAgent(ArtifactMixin, Agent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._async_connect = CoroutineMock()
-        self._async_register = CoroutineMock()
-        self.conn_coro = Mock()
-        self.conn_coro.__aexit__ = CoroutineMock()
-        self.stream = Mock()
+        self._async_connect = AsyncMock()
+        self._async_register = AsyncMock()
 
     async def _hook_plugin_after_connection(self, *args, **kwargs):
         await super()._hook_plugin_after_connection(*args, **kwargs)
         self.pubsub = Mock()
-        self.pubsub.subscribe = CoroutineMock()
-        self.pubsub.unsubscribe = CoroutineMock()
+        self.pubsub.subscribe = AsyncMock()
+        self.pubsub.unsubscribe = AsyncMock()
 
 
 class MockedConnectedArtifactAgentFactory(factory.Factory):

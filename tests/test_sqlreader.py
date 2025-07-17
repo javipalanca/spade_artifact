@@ -1,17 +1,17 @@
-from tests.compat import AsyncTestCase, AsyncMock, MagicMock, patch
-import unittest.mock as mock
+import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
 from spade_artifact.common.readers.sqlreader import DatabaseQueryArtifact
 
-class TestDatabaseQueryArtifact(AsyncTestCase):
-    def setUp(self):
-        super().setUp()
-        self.connection_params = {'host': 'localhost', 'user': 'test', 'password': 'test', 'database': 'testdb'}
-        self.query = "SELECT * FROM test_table"
-        self.mock_db_connection = MagicMock()
+
+class TestDatabaseQueryArtifact(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
-        await super().asyncSetUp()
-        self.connection_params = {'host': 'localhost', 'user': 'test', 'password': 'test', 'database': 'testdb'}
+        self.connection_params = {
+            'host': 'localhost',
+            'user': 'test',
+            'password': 'test',
+            'database': 'testdb'
+        }
         self.query = "SELECT * FROM test_table"
         self.mock_db_connection = MagicMock()
 

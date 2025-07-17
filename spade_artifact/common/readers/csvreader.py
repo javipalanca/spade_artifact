@@ -3,6 +3,7 @@ import asyncio
 import spade_artifact
 from loguru import logger
 
+
 class CSVReaderArtifact(spade_artifact.Artifact):
     """
     An artifact for asynchronously reading and processing data from CSV files.
@@ -24,7 +25,10 @@ class CSVReaderArtifact(spade_artifact.Artifact):
         time_column (str, optional): The name of the column that contains timestamp information.
 
     """
-    def __init__(self, jid, passwd, csv_file, columns=None, frequency=1, time_column=None):
+
+    def __init__(
+        self, jid, passwd, csv_file, columns=None, frequency=1, time_column=None
+    ):
         super().__init__(jid, passwd)
         self.csv_file = csv_file
         self.columns = columns

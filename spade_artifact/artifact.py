@@ -3,12 +3,12 @@ import abc
 import asyncio
 import time
 from asyncio import Event
-from typing import Union
+from typing import Union, Optional
 
 from slixmpp import JID
 from slixmpp.exceptions import IqError, _DEFAULT_ERROR_TYPES
 from slixmpp.stanza.message import Message as SlixmppMessage
-from slixmpp.xmlstream import tostring
+
 from loguru import logger
 from spade.agent import AuthenticationFailure, DisconnectedException
 from spade.container import Container
@@ -33,7 +33,9 @@ class AbstractArtifact(object, metaclass=abc.ABCMeta):
 
 
 class Artifact(PubSubMixin, AbstractArtifact):
-    def __init__(self, jid, password, pubsub_server=None, port=5222, verify_security=False):
+    def __init__(
+        self, jid, password, pubsub_server=None, port=5222, verify_security=False
+    ):
         """
         Creates an artifact
 
@@ -51,23 +53,19 @@ class Artifact(PubSubMixin, AbstractArtifact):
             pubsub_server if pubsub_server else f"pubsub.{self.jid.domain}"
         )
 
+        self.client: Optional[XMPPClient] = None
+        self.presence: Optional[PresenceManager] = None
+
         self._values = {}
 
-        self.conn_coro = None
-        self.stream = None
-        self.client = None
         self.message_dispatcher = None
-        self.presence = None
 
         self.container = Container()
         self.container.register(self)
+
         self.loop = self.container.loop
 
-        # self.loop = None #asyncio.new_event_loop()
-
         self.queue = asyncio.Queue()
-        if not self.queue._loop:
-            self.queue._loop = self.loop
         self._alive = Event()
         self.subscriptions = {}
 
@@ -91,6 +89,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         # Set the publication handler once the connection is established
         self.pubsub.set_on_item_published(self.on_item_published)
+
     async def start(self, auto_register: bool = True) -> None:
         """
         Tells the container to start this agent.
@@ -125,7 +124,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
         self.presence = PresenceManager(agent=self, approve_all=False)
 
         await self._async_connect()
-
         await self._hook_plugin_after_connection()
 
         # pubsub initialization
@@ -136,9 +134,11 @@ class Artifact(PubSubMixin, AbstractArtifact):
             if e.condition == _DEFAULT_ERROR_TYPES["conflict"]:
                 logger.info(f"Node {self._node} already registered")
             elif e.condition == _DEFAULT_ERROR_TYPES["forbidden"]:
-                logger.error(f"Artifact {self._node} is not allowed to publish properties.")
+                logger.error(
+                    f"Artifact {self._node} is not allowed to publish properties."
+                )
             else:
-                logger.error(f"Unknown error creating node: {tostring(e)}")
+                logger.error(f"Error creating node: {e.format()}")
             raise e
 
         await self.setup()
@@ -147,55 +147,59 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
     async def _async_connect(self):  # pragma: no cover
         """ connect and authenticate to the XMPP server. Async mode. """
-        self.client.connected_event = asyncio.Event()
-        self.client.disconnected_event = asyncio.Event()
-        self.client.failed_auth_event = asyncio.Event()
 
-        connected_task = asyncio.create_task(
-            self.client.connected_event.wait(), name="connected"
-        )
-        disconnected_task = asyncio.create_task(
-            self.client.disconnected_event.wait(), name="disconnected"
-        )
-        failed_auth_task = asyncio.create_task(
-            self.client.failed_auth_event.wait(), name="failed_auth"
-        )
+        if self.client is not None:
+            self.client.connected_event = asyncio.Event()
+            self.client.disconnected_event = asyncio.Event()
+            self.client.failed_auth_event = asyncio.Event()
 
-        self.client.add_event_handler(
-            "session_start", lambda _: self.client.connected_event.set()
-        )
-        self.client.add_event_handler(
-            "disconnected", lambda _: self.client.disconnected_event.set()
-        )
-        self.client.add_event_handler(
-            "failed_all_auth", lambda _: self.client.failed_auth_event.set()
-        )
-        self.client.add_event_handler("message", self._message_received)
+            connected_task = asyncio.create_task(
+                self.client.connected_event.wait(), name="connected"
+            )
+            disconnected_task = asyncio.create_task(
+                self.client.disconnected_event.wait(), name="disconnected"
+            )
+            failed_auth_task = asyncio.create_task(
+                self.client.failed_auth_event.wait(), name="failed_auth"
+            )
 
-        self.client.connect(address=(self.jid.host, self.xmpp_port))
+            self.client.add_event_handler(
+                "session_start", lambda _: self.client.connected_event.set()
+            )
+            self.client.add_event_handler(
+                "disconnected", lambda _: self.client.disconnected_event.set()
+            )
+            self.client.add_event_handler(
+                "failed_all_auth", lambda _: self.client.failed_auth_event.set()
+            )
+            self.client.add_event_handler("message", self._message_received)
 
-        done, pending = await asyncio.wait(
-            [connected_task, disconnected_task, failed_auth_task],
-            return_when=asyncio.FIRST_COMPLETED,
-        )
+            _ = self.client.connect(host=self.jid.host, port=self.xmpp_port)
 
-        for task in pending:
-            task.cancel()
+            done, pending = await asyncio.wait(
+                [connected_task, disconnected_task, failed_auth_task],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
 
-        for task in done:
-            await task
+            for task in pending:
+                task.cancel()
 
-            if task.get_name() == "failed_auth":
-                raise AuthenticationFailure(
-                    "Could not authenticate the agent. Check user and password or use auto_register=True"
-                )
-            elif task.get_name() == "disconnected":
-                raise DisconnectedException(
-                    "Error during the connection with the server"
-                )
+            for task in done:
+                await task
 
-        logger.info(f"Agent {str(self.jid)} connected and authenticated.")
+                if task.get_name() == "failed_auth":
+                    raise AuthenticationFailure(
+                        "Could not authenticate the agent. Check user and password or use auto_register=True"
+                    )
+                elif task.get_name() == "disconnected":
+                    raise DisconnectedException(
+                        "Error during the connection with the server"
+                    )
 
+            logger.info(f"Agent {str(self.jid)} connected and authenticated.")
+
+        else:
+            raise RuntimeError("XMPPClient is not initialized.")
 
     async def setup(self):
         """
@@ -216,7 +220,8 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
     @property
     def name(self):
-        """ Returns the name of the artifact (the string before the '@') """
+        """Returns the name of the artifact (the string before the '@')"""
+
         return self.jid.node
 
     async def stop(self) -> None:
@@ -227,13 +232,11 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return await self._async_stop()
 
     async def _async_stop(self):
-        """ Stops an artifact and kills all its behaviours. """
+        """Stops an artifact and kills all its behaviours."""
         if self.presence:
             self.presence.set_unavailable()
 
-        """ Discconnect from XMPP server. """
         if self.is_alive():
-            # Disconnect from XMPP server
             await self.client.disconnect()
             logger.info("Client disconnected.")
 
@@ -276,22 +279,18 @@ class Artifact(PubSubMixin, AbstractArtifact):
         else:
             return None
 
-    def _message_received(self, msg):
+    def _message_received(self, msg) -> None:
         """
         Callback run when an XMPP Message is reveived.
         The slixmpp.stanza.Message is converted to spade.message.Message
 
         Args:
           msg (slixmpp.stanza.Messagge): the message just received.
-
-        Returns:
-            asyncio.Future: a future of the append of the message.
-
         """
 
         msg = Message.from_node(msg)
         logger.debug(f"Got message: {msg}")
-        return asyncio.run_coroutine_threadsafe(self.queue.put(msg), self.loop)
+        self.queue.put_nowait(msg)
 
     async def send(self, msg: Message):
         """
@@ -303,8 +302,8 @@ class Artifact(PubSubMixin, AbstractArtifact):
         if not msg.sender:
             msg.sender = str(self.jid)
             logger.debug(f"Adding artifact's jid as sender to message: {msg}")
-        slixmpp_msg = msg.prepare()
-        await self.client.send(slixmpp_msg)
+        slixmpp_msg = msg.prepare(self.client)
+        slixmpp_msg.send()
         msg.sent = True
 
     async def receive(self, timeout: float = None) -> Union[Message, None]:
@@ -343,7 +342,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
         return self.queue.qsize()
 
     def join(self, timeout=None):
-
         try:
             in_coroutine = asyncio.get_event_loop() == self.loop
         except RuntimeError:  # pragma: no cover
@@ -368,7 +366,9 @@ class Artifact(PubSubMixin, AbstractArtifact):
                 raise TimeoutError
 
     async def publish(self, payload: str) -> None:
-        await self.pubsub.publish(self.pubsub_server, self._node, payload)
+        await self.pubsub.publish(
+            self.pubsub_server, self._node, payload, ifrom=self.jid.bare
+        )
 
     def on_item_published(self, msg: SlixmppMessage):
         """
@@ -380,10 +380,10 @@ class Artifact(PubSubMixin, AbstractArtifact):
             item (object): The item that was published.
             message (str, optional): Additional message or data associated with the publication.
         """
-        node = msg['pubsub_event']['items']['node']
+        node = msg["pubsub_event"]["items"]["node"]
         if node in self.subscriptions:
-            item = msg['pubsub_event']['items']['item']['payload']
-            jid = msg['pubsub_event']['items']['item']['publisher']
+            item = msg["pubsub_event"]["items"]["item"]["payload"]
+            jid = msg["pubsub_event"]["items"]["item"]["publisher"]
             self.subscriptions[node](jid, item)
 
     async def link(self, target_artifact_jid, callback):

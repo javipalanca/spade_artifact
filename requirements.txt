@@ -1,8 +1,5 @@
-
-spade>=4.0.0
-slixmpp==1.8.5
-spade_pubsub>=0.2.0
-loguru>=0.5.3
+spade>=4.1.0
+spade-pubsub>=0.3.0
 pandas>=2.0.3,<3.0.0; python_version>='3.8'
 aiohttp>=3.8.0,<4.0.0
 pymysql>=1.1.0
