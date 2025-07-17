@@ -4,13 +4,12 @@
 """Tests for `spade_artifact` package."""
 import asyncio
 from unittest.mock import Mock, AsyncMock, MagicMock
-
 import pytest
+
 from spade.message import Message
 from slixmpp import Message as SlixmppMessage
 
-from tests.factories import MockedConnectedArtifactFactory, MockedConnectedArtifact
-
+from .factories import MockedConnectedArtifactFactory, MockedConnectedArtifact
 
 async def test_run():
     artifact = MockedConnectedArtifactFactory()
@@ -77,11 +76,11 @@ async def test_send_msg():
     message = MagicMock()
     message_prepare = MagicMock()
     message.prepare.return_value = message_prepare
-    message_prepare.send = MagicMock()
 
     class A(MockedConnectedArtifact):
         async def run(self):
             self.client = MagicMock()
+            self.client.send = AsyncMock()
             await self.send(message)
             self.kill()
 
@@ -91,7 +90,7 @@ async def test_send_msg():
     await artifact.start()
     await artifact.join()
 
-    assert message_prepare.send.called
+    artifact.client.send.assert_called_with(message_prepare)
     message.prepare.assert_called_with(artifact.client)
 
 

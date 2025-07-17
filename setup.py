@@ -50,6 +50,7 @@ setup(
     keywords="spade_artifact",
     name="spade_artifact",
     packages=find_packages(include=["spade_artifact"]),
+    python_requires='>=3.8,<3.13',
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,

@@ -1,9 +1,6 @@
 import asyncio
-
 from loguru import logger
-
 import spade_artifact
-
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
@@ -101,7 +98,6 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         """
         Asynchronously establishes a connection to the MongoDB database.
         """
-
         self.client = AsyncIOMotorClient(self.connection_uri)
         self.db = self.client[self.database_name]
         self.collection = self.db[self.collection_name]
@@ -139,7 +135,6 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
     async def run(self):
         """
         Asynchronously and periodically executes the MongoDB query based on `self.time_request`.
-
 
         After each iteration, the method waits for `self.time_request` seconds before the next
         execution. When the loop ends, it ensures that the client connection to MongoDB is properly closed to release
