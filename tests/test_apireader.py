@@ -22,7 +22,7 @@ class TestAPIReaderArtifact(unittest.IsolatedAsyncioTestCase):
         # Mock de métodos internos del artefacto
         artifact.publish = AsyncMock()
         artifact.presence = MagicMock()
-        artifact.presence.set_available = AsyncMock()
+        artifact.presence.set_available = MagicMock()
 
         # Ejecutamos
         await artifact.run()

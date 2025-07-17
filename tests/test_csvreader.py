@@ -26,7 +26,7 @@ class TestCSVReaderArtifact(unittest.IsolatedAsyncioTestCase):
 
         artifact.publish = AsyncMock()
         artifact.presence = MagicMock()
-        artifact.presence.set_available = AsyncMock()
+        artifact.presence.set_available = MagicMock()
 
         await artifact.run()
 
