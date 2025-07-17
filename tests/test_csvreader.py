@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pandas as pd
 import tempfile
 import os
-
 from spade_artifact.common.readers.csvreader import CSVReaderArtifact
 
 
