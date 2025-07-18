@@ -3,7 +3,7 @@ from loguru import logger
 import spade_artifact
 import sqlite3
 import pymysql
-import psycopg
+import psycopg2
 
 
 

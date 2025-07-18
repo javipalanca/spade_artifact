@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
+from aiounittest import AsyncTestCase
 from spade_artifact.common.readers.sqlreader import DatabaseQueryArtifact
 
 

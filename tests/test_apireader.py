@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock
+from aiounittest import AsyncTestCase   
 from aioresponses import aioresponses
 
 from spade_artifact.common.readers.apireader import APIReaderArtifact
