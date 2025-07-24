@@ -1,15 +1,17 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock
-from aiounittest import AsyncTestCase   
+from aiounittest import AsyncTestCase
 from aioresponses import aioresponses
 
 from spade_artifact.common.readers.apireader import APIReaderArtifact
+
 
 class TestAPIReaderArtifact(AsyncTestCase):
     def setUp(self):
         super().setUp()
         self.mock_url = "http://mockapi.com/data"
         self.api_response_data = [{"key": "value1"}, {"key": "value2"}]
+
 
 class TestAPIReaderArtifact(unittest.IsolatedAsyncioTestCase):
 

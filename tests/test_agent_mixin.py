@@ -1,4 +1,3 @@
-import asyncio
 import collections
 from unittest.mock import Mock
 from xml.etree.ElementTree import Element

@@ -1,10 +1,10 @@
 import asyncio
+
+import psycopg
 from loguru import logger
 import spade_artifact
 import sqlite3
 import pymysql
-import psycopg2
-
 
 
 class DatabaseQueryArtifact(spade_artifact.Artifact):
