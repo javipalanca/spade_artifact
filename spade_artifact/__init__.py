@@ -4,7 +4,7 @@
 
 __author__ = """Javi Palanca"""
 __email__ = "jpalanca@gmail.com"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from .artifact import Artifact
 from .agent import ArtifactMixin
