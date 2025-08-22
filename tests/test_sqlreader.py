@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
+from aiounittest import AsyncTestCase
 from spade_artifact.common.readers.sqlreader import DatabaseQueryArtifact
 
 
@@ -17,23 +18,26 @@ class TestDatabaseQueryArtifact(unittest.IsolatedAsyncioTestCase):
 
     def test_connection_parameters_validation_postgresql(self):
         with self.assertRaises(ValueError):
-            artifact = DatabaseQueryArtifact("jid@test.com", "password", "postgresql", {}, self.query)
+            artifact = DatabaseQueryArtifact("jid@test.com", "password", "postgresql", {},
+                                           query=self.query)
             artifact.validate_connection_params()
 
     def test_connection_parameters_validation_mysql(self):
         with self.assertRaises(ValueError):
-            artifact = DatabaseQueryArtifact("jid@test.com", "password", "mysql", {}, self.query)
+            artifact = DatabaseQueryArtifact("jid@test.com", "password", "mysql", {},
+                                           query=self.query)
             artifact.validate_connection_params()
 
     def test_connection_parameters_validation_sqlite(self):
         with self.assertRaises(ValueError):
-            artifact = DatabaseQueryArtifact("jid@test.com", "password", "sqlite", {}, self.query)
+            artifact = DatabaseQueryArtifact("jid@test.com", "password", "sqlite", {},
+                                           query=self.query)
             artifact.validate_connection_params()
 
     @patch('sqlite3.connect', return_value=MagicMock())
     async def test_query_execution_sqlite(self, mocked_connect):
         artifact = DatabaseQueryArtifact("jid@test.com", "password", "sqlite",
-                                         {'database': 'test.db'}, self.query)
+                                       {'database': 'test.db'}, query=self.query)
         artifact.conn = mocked_connect()
         artifact.publish = AsyncMock()
         artifact.presence = MagicMock()

@@ -1,11 +1,10 @@
 import asyncio
 
+import psycopg
 from loguru import logger
-
 import spade_artifact
 import sqlite3
 import pymysql
-import psycopg2
 
 
 class DatabaseQueryArtifact(spade_artifact.Artifact):
@@ -19,7 +18,7 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
        db_type (str): The type of the database. This parameter accepts the following values:
             - 'mysql': Indicates that the database is a MySQL database. Requires `pymysql` library.
             - 'sqlite': Indicates that the database is a SQLite database. Uses Python's built-in `sqlite3` library.
-            - 'postgresql': Indicates that the database is a PostgreSQL database. Requires `psycopg2` library.
+            - 'postgresql': Indicates that the database is a PostgreSQL database. Requires `psycopg` library.
         connection_params (dict): Details required to connect to the database. The structure of this dictionary varies based on the `db_type`:
             - For 'mysql' and 'postgresql': This dictionary should include the following keys:
                 - 'host': The hostname or IP address of the database server.
@@ -150,12 +149,11 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         Raises:
             ValueError: If `db_type` is not supported.
         """
-
         if self.db_type == "sqlite":
             self.conn = sqlite3.connect(self.prepare_connection_string())
             self.cur = self.conn.cursor()
         elif self.db_type == "postgresql":
-            self.conn = psycopg2.connect(self.prepare_connection_string())
+            self.conn = psycopg.connect(**self.prepare_connection_string())
             self.cur = self.conn.cursor()
         elif self.db_type == "mysql":
             self.conn = pymysql.connect(**self.prepare_connection_string())
@@ -172,9 +170,9 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
 
         Returns:
             The data fetched from executing `self.query`.
-
         """
         await self.connect_to_database()
+
         self.cur.execute(self.query)
         data = self.cur.fetchall()
         return data
@@ -183,13 +181,10 @@ class DatabaseQueryArtifact(spade_artifact.Artifact):
         """
         Asynchronously and periodically executes the database query based on `self.time_request`.
 
-
         After each iteration, the method waits for `self.time_request` seconds before the next
         execution. When the loop ends, it ensures that the cursor and the database connection
         are properly closed to release resources.
-
         """
-
         continue_query = True
 
         while continue_query:

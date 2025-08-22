@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pandas as pd
 import tempfile
 import os
-
 from spade_artifact.common.readers.csvreader import CSVReaderArtifact
 
 
@@ -26,7 +25,7 @@ class TestCSVReaderArtifact(unittest.IsolatedAsyncioTestCase):
 
         artifact.publish = AsyncMock()
         artifact.presence = MagicMock()
-        artifact.presence.set_available = AsyncMock()
+        artifact.presence.set_available = MagicMock()
 
         await artifact.run()
 

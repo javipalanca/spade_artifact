@@ -5,9 +5,10 @@ Credits
 Development Lead
 ----------------
 
-* Javi Palanca <jpalanca @ gmail.com>
+* Javi Palanca <https://github.com/javipalanca>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Manel Soler <https://github.com/sosanzma>
+* Aaron Raya <https://github.com/dinothor>

@@ -2,6 +2,11 @@
 History
 =======
 
+0.3.1 (2025-08-22)
+------------------
+* Fixed compatibility with SPADE 4.1.2
+* Fixed tests
+
 0.3.0 (2025-07-16)
 ------------------
 * Updated to SPADE 4.1

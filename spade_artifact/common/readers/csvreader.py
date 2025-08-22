@@ -1,6 +1,7 @@
 import pandas as pd
 import asyncio
 import spade_artifact
+from loguru import logger
 
 
 class CSVReaderArtifact(spade_artifact.Artifact):
@@ -61,5 +62,5 @@ class CSVReaderArtifact(spade_artifact.Artifact):
                 await asyncio.sleep(self.frequency)
 
             await self.publish(f"{row.to_dict()}")
-
+        logger.info("Finished reading CSV file")
         self.presence.set_unavailable()

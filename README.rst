@@ -44,7 +44,9 @@ Plugin for SPADE 3 to develop artifacts.
 
 
 * Free software: MIT license
+* Web: https://spadeagents.eu/plugins/spade-artifact/
 * Documentation: https://spade-artifact.readthedocs.io.
+* SPADE: https://spadeagents.eu
 
 
 Features

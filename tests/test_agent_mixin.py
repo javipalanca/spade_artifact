@@ -3,10 +3,10 @@ from unittest.mock import Mock
 from xml.etree.ElementTree import Element
 
 from slixmpp.stanza.message import Message as SlixmppMessage
-from spade.behaviour import OneShotBehaviour
 
+from spade.behaviour import OneShotBehaviour
 from spade_artifact.agent import ArtifactComponent
-from tests.factories import MockedConnectedArtifactAgentFactory
+from .factories import MockedConnectedArtifactAgentFactory
 
 
 def test_pubsub_server_not_set():

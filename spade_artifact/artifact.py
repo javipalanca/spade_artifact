@@ -8,6 +8,7 @@ from typing import Union, Optional
 from slixmpp import JID
 from slixmpp.exceptions import IqError, _DEFAULT_ERROR_TYPES
 from slixmpp.stanza.message import Message as SlixmppMessage
+
 from loguru import logger
 from spade.agent import AuthenticationFailure, DisconnectedException
 from spade.container import Container
@@ -44,8 +45,8 @@ class Artifact(PubSubMixin, AbstractArtifact):
           verify_security (bool): Wether to verify or not the SSL certificates
         """
         self.jid = JID(jid)
-        self.password = password
         self.xmpp_port = port
+        self.password = password
         self.verify_security = verify_security
 
         self.pubsub_server = (
@@ -145,7 +146,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         asyncio.run_coroutine_threadsafe(self.run(), loop=self.loop)
 
     async def _async_connect(self):  # pragma: no cover
-        """connect and authenticate to the XMPP server. Async mode."""
+        """ connect and authenticate to the XMPP server. Async mode. """
 
         if self.client is not None:
             self.client.connected_event = asyncio.Event()
@@ -220,6 +221,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
     @property
     def name(self):
         """Returns the name of the artifact (the string before the '@')"""
+
         return self.jid.node
 
     async def stop(self) -> None:
@@ -284,7 +286,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         Args:
           msg (slixmpp.stanza.Messagge): the message just received.
-
         """
 
         msg = Message.from_node(msg)

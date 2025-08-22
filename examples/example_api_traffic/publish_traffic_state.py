@@ -53,12 +53,14 @@ class ConsumerAgent(ArtifactMixin, Agent):
         self.artifact_jid = artifact_jid
 
     def artifact_callback(self, artifact, payload):
-        logger.info(f"Received from {artifact}: {payload}")
+        logger.info(f"[ConsumerAgent] Received from {artifact}: {payload}")
 
     async def setup(self):
         await asyncio.sleep(2)
         self.presence.subscribe(self.artifact_jid)
         self.presence.set_available()
+
+
         await self.artifacts.focus(self.artifact_jid, self.artifact_callback)
         logger.info("Agent ready and listening to the artifact")
 
