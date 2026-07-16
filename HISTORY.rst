@@ -2,6 +2,13 @@
 History
 =======
 
+0.3.2 (2026-07-16)
+------------------
+* Migration to pyproject.toml + UV
+* Improve CI pipelines
+* Applied linter
+* Fixed tests and increment the coverage
+
 0.3.1 (2025-08-22)
 ------------------
 * Fixed compatibility with SPADE 4.1.2
