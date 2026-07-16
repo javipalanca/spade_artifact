@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch, AsyncMock
 
 import pytest
-from slixmpp import JID
 
 from spade_artifact.common.readers.mongodbreader import MongoDBQueryArtifact
 
@@ -12,21 +11,12 @@ def mongoreader():
     database_name = "test"
     collection_name = "test"
     operation = "fake_operation"
-    query = {
-        "fake": "dict",
-        "query": "data"
-    }
+    query = {"fake": "dict", "query": "data"}
     jid = "mongo@localhost"
     pwd = "1234"
 
     yield MongoDBQueryArtifact(
-        connection_uri,
-        database_name,
-        collection_name,
-        operation,
-        query,
-        jid,
-        pwd
+        connection_uri, database_name, collection_name, operation, query, jid, pwd
     )
 
 
@@ -35,21 +25,12 @@ def test_init():
     database_name = "test"
     collection_name = "test"
     operation = "fake_operation"
-    query = {
-        "fake": "dict",
-        "query": "data"
-    }
+    query = {"fake": "dict", "query": "data"}
     jid = "mongo@localhost"
     pwd = "1234"
 
     mongoreader = MongoDBQueryArtifact(
-        connection_uri,
-        database_name,
-        collection_name,
-        operation,
-        query,
-        jid,
-        pwd
+        connection_uri, database_name, collection_name, operation, query, jid, pwd
     )
     assert mongoreader.connection_uri == connection_uri
     assert mongoreader.database_name == database_name
@@ -61,6 +42,7 @@ def test_init():
     assert mongoreader.client is None
     assert mongoreader.db is None
     assert mongoreader.collection is None
+
 
 @patch("spade_artifact.common.readers.mongodbreader.logger")
 def test_default_data_processor(mock_log, mongoreader):
@@ -182,16 +164,16 @@ async def test_run(mongoreader):
     mongoreader.execute_operation = AsyncMock()
     mongoreader.data_processor = AsyncMock()
     mongoreader.publish = AsyncMock()
-    mongoreader.data_processor.return_value = [
-        "fake", "messages"
-    ]
+    mongoreader.data_processor.return_value = ["fake", "messages"]
     mongoreader.mongo_client = MagicMock()
 
     await mongoreader.run()
 
     mongoreader.update_query.assert_called_once()
     mongoreader.execute_operation.assert_called_once()
-    mongoreader.data_processor.assert_called_once_with(mongoreader.execute_operation.return_value)
+    mongoreader.data_processor.assert_called_once_with(
+        mongoreader.execute_operation.return_value
+    )
     assert mongoreader.publish.call_count == 2
     args = mongoreader.publish.call_args_list
     assert args[0][0][0] == "fake"

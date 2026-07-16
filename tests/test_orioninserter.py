@@ -1,11 +1,8 @@
 import asyncio
 import json
-import re
 from unittest.mock import MagicMock, AsyncMock, patch
 
-import aiohttp
 import pytest
-from aiohttp import ClientError
 from slixmpp import JID
 
 from spade_artifact.common.readers.context_broker_inserter import InserterArtifact
@@ -36,9 +33,9 @@ def test_init():
     assert artifact.password == password
     assert artifact.api_url == "http://localhost:9090/ngsi-ld/v1/entities"
     assert artifact.headers == {
-            "Content-Type": "application/ld+json",
-            "NGSILD-Tenant": project_name
-        }
+        "Content-Type": "application/ld+json",
+        "NGSILD-Tenant": project_name,
+    }
     assert artifact.publisher_jid == publisher_jid
     assert artifact.columns_update == []
     assert artifact.data_processor == artifact.default_data_processor
@@ -58,6 +55,7 @@ async def test_setup(artifact):
         "pubsub@localhost", artifact.artifact_callback
     )
 
+
 @patch("spade_artifact.common.readers.context_broker_inserter.logger")
 def test_default_data_processor(mock_logger, artifact):
     data = {
@@ -68,12 +66,11 @@ def test_default_data_processor(mock_logger, artifact):
     mock_logger.info.assert_called_once()
     assert result == [data]
 
+
 @patch("spade_artifact.common.readers.context_broker_inserter.logger")
 async def test_artifact_callback(mock_logger, artifact):
     artifact_str = "test_artifact"
-    payload = {
-        "payload": "data"
-    }
+    payload = {"payload": "data"}
 
     artifact.data_processor = MagicMock()
     artifact.data_processor.side_effect = lambda x: [x]
@@ -85,10 +82,7 @@ async def test_artifact_callback(mock_logger, artifact):
 
 
 async def test_process_and_send_data(artifact):
-    payload = {
-        "type": "fake",
-        "id": "data"
-    }
+    payload = {"type": "fake", "id": "data"}
     artifact.build_entity_json = MagicMock()
     artifact.update_or_create_entity = AsyncMock()
     artifact.update_specific_attributes = AsyncMock()
@@ -105,10 +99,7 @@ async def test_process_and_send_data(artifact):
 
 
 async def test_process_and_send_data_columns_update(artifact):
-    payload = {
-        "type": "fake",
-        "id": "data"
-    }
+    payload = {"type": "fake", "id": "data"}
     artifact.columns_update = ["specific", "columns"]
     artifact.build_entity_json = MagicMock()
     artifact.update_or_create_entity = AsyncMock()
@@ -130,7 +121,7 @@ async def test_update_specific_attributes(artifact):
     mock_entity_data = {
         "@context": MagicMock(),
         "specific": MagicMock(),
-        "columns": MagicMock()
+        "columns": MagicMock(),
     }
 
     await artifact.update_specific_attributes("entityid", mock_entity_data)
@@ -155,7 +146,7 @@ async def test_update_specific_attributes_warning(mock_logger, artifact):
     mock_entity_data = {
         "@context": MagicMock(),
         "specific": MagicMock(),
-        "columns": MagicMock()
+        "columns": MagicMock(),
     }
 
     await artifact.update_specific_attributes("entityid", mock_entity_data)
@@ -175,14 +166,14 @@ async def test_update_or_create_entity_exists(artifact):
         "specific": MagicMock(),
         "columns": MagicMock(),
     }
-    mock_payload = {
-        "some": "data"
-    }
+    mock_payload = {"some": "data"}
 
     await artifact.update_or_create_entity("entityid", mock_entity_data, mock_payload)
 
     artifact.entity_exists.assert_called_once_with("entityid")
-    artifact.update_all_attributes.assert_called_once_with("entityid", mock_entity_data, mock_entity_data["@context"])
+    artifact.update_all_attributes.assert_called_once_with(
+        "entityid", mock_entity_data, mock_entity_data["@context"]
+    )
     artifact.build_entity_json.assert_not_called()
     artifact.create_new_entity.assert_not_called()
 
@@ -223,7 +214,9 @@ async def test_build_entity_json(artifact):
 
     artifact.build_entity_json(mock_payload)
 
-    artifact._replace_placeholders.assert_called_once_with(artifact.json_template, mock_payload)
+    artifact._replace_placeholders.assert_called_once_with(
+        artifact.json_template, mock_payload
+    )
     assert "@context" in mock_result
     assert mock_result["@context"] == artifact.json_template["@context"]
     artifact._clean_result.assert_called_once_with(mock_result, {})
@@ -243,11 +236,14 @@ async def test_build_entity_json_clean_false(artifact):
 
     artifact.build_entity_json(mock_payload, clean=False)
 
-    artifact._replace_placeholders.assert_called_once_with(artifact.json_template, mock_payload)
+    artifact._replace_placeholders.assert_called_once_with(
+        artifact.json_template, mock_payload
+    )
     assert "@context" in mock_result
     assert mock_result["@context"] == artifact.json_template["@context"]
     artifact._clean_result.assert_not_called()
     artifact._fill_missing_values.assert_called_once_with(mock_result, {})
+
 
 @patch("spade_artifact.common.readers.context_broker_inserter.logger")
 async def test_build_entity_json_context_error(mock_logger, artifact):
@@ -331,17 +327,20 @@ def test_replace_string_placeholder_missing(artifact):
     result = artifact._replace_placeholders(template, payload)
     assert result is None
 
+
 def test_static_string_without_placeholder(artifact):
     template = "just_a_normal_string"
     payload = {"name": "Alice"}
     result = artifact._replace_placeholders(template, payload)
     assert result == "just_a_normal_string"
 
+
 def test_dict_with_id_key(artifact):
     template = {"id": "user_{user_id}"}
     payload = {"user_id": "12345"}
     result = artifact._replace_placeholders(template, payload)
     assert result == {"id": "user_12345"}
+
 
 def test_dict_recursive_replacement(artifact):
     template = {
@@ -356,6 +355,7 @@ def test_dict_recursive_replacement(artifact):
     result = artifact._replace_placeholders(template, payload)
     assert result == expected
 
+
 def test_list_replacement_and_filtering(artifact):
     template = ["{item1}", "{missing_item}", "static_value"]
     payload = {"item1": "apple"}
@@ -364,17 +364,18 @@ def test_list_replacement_and_filtering(artifact):
     result = artifact._replace_placeholders(template, payload)
     assert result == expected
 
-@pytest.mark.parametrize(
-    "empty_template", [({"key": "{missing}"}), (["{missing}"])]
-)
+
+@pytest.mark.parametrize("empty_template", [({"key": "{missing}"}), (["{missing}"])])
 def test_empty_structures_return_none(artifact, empty_template):
     result = artifact._replace_placeholders(empty_template, {})
     assert result is None
+
 
 @pytest.mark.parametrize("primitive_value", [42, True, 3.14, None])
 def test_other_data_types(artifact, primitive_value):
     result = artifact._replace_placeholders(primitive_value, {})
     assert result == primitive_value
+
 
 def test_fill_missing_value_generic(artifact):
     result = {"temperature": {"type": "Property"}}
@@ -382,17 +383,20 @@ def test_fill_missing_value_generic(artifact):
 
     assert result["temperature"]["value"] == "None"
 
+
 def test_fill_missing_coordinates_for_point(artifact):
     result = {"location": {"type": "Point"}}
     artifact._fill_missing_values(result, exceptions={})
 
     assert result["location"]["coordinates"] == [0.0, 0.0]
 
+
 def test_fill_missing_object_for_relationship(artifact):
     result = {"refDevice": {"type": "Relationship"}}
     artifact._fill_missing_values(result, exceptions={})
 
     assert result["refDevice"]["object"] == "urn:ngsi-ld:Relationship:default"
+
 
 def test_no_fill_if_key_already_exists(artifact):
     result = {
@@ -407,15 +411,14 @@ def test_no_fill_if_key_already_exists(artifact):
     artifact._fill_missing_values(result, exceptions={})
     assert result == expected
 
+
 def test_exception_key_override(artifact):
     result = {
         "speed": {
             "type": "Property",
             "custom_value_key": 100,
         },
-        "distance": {
-            "type": "Property"
-        },
+        "distance": {"type": "Property"},
     }
     exceptions = {"speed": "custom_value_key", "distance": "custom_value_key"}
 
@@ -424,6 +427,7 @@ def test_exception_key_override(artifact):
     assert result["speed"]["custom_value_key"] == 100
     assert "value" not in result["speed"]
     assert result["distance"]["value"] == "None"
+
 
 def test_recursive_processing_in_lists_and_nested_dicts(artifact):
     result = {
@@ -438,13 +442,12 @@ def test_recursive_processing_in_lists_and_nested_dicts(artifact):
     assert result["metrics"][0]["humidity"]["value"] == "None"
     assert result["metrics"][1]["sub_group"]["pressure"]["value"] == "None"
 
+
 def test_clean_invalid_property(artifact):
     result = {
         "id": "urn:ngsi-ld:Entity:01",
         "type": "Device",
-        "invalid_property": {
-            "type": "Property"
-        },
+        "invalid_property": {"type": "Property"},
         "valid_property": {
             "type": "Property",
             "value": 25.0,
@@ -457,15 +460,15 @@ def test_clean_invalid_property(artifact):
     assert "valid_property" in result
     assert result["id"] == "urn:ngsi-ld:Entity:01"
 
+
 def test_clean_with_exceptions_present(artifact):
-    result = {
-        "custom_prop": {"type": "Property", "observedAt": "2026-07-01T12:00:00Z"}
-    }
+    result = {"custom_prop": {"type": "Property", "observedAt": "2026-07-01T12:00:00Z"}}
     exceptions = {"custom_prop": "observedAt"}
 
     artifact._clean_result(result, exceptions)
 
     assert "custom_prop" in result
+
 
 def test_clean_with_exceptions_missing(artifact):
     result = {
@@ -480,6 +483,7 @@ def test_clean_with_exceptions_missing(artifact):
 
     assert "custom_prop" not in result
 
+
 def test_clean_empty_lists_and_recursive_removal(artifact):
     result = {"empty_list_key": [], "nested_dict": {"another_empty_list": []}}
 
@@ -487,13 +491,12 @@ def test_clean_empty_lists_and_recursive_removal(artifact):
 
     assert "empty_list_key" not in result
 
+
 def test_clean_list_of_dicts(artifact):
     result = {
         "items_list": [
             {"type": "Property", "value": "Valid"},
-            {
-                "type": "Property"
-            },
+            {"type": "Property"},
         ]
     }
 
@@ -503,20 +506,15 @@ def test_clean_list_of_dicts(artifact):
     assert result["items_list"][0]["value"] == "Valid"
     assert result["items_list"][1]["type"] == "Property"
 
+
 def test_recursive_deep_cleaning(artifact):
     result = {
         "level1": {
             "type": "Property",
-            "level2": {
-                "type": "Property"
-            },
+            "level2": {"type": "Property"},
         }
     }
 
     artifact._clean_result(result, exceptions={})
 
     assert result == {}
-
-
-
-

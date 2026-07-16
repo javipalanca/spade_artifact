@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `spade_artifact` presence."""
+
 import asyncio
 from unittest.mock import Mock, MagicMock
 
@@ -134,9 +135,7 @@ async def test_set_presence():
     artifact.loop = asyncio.get_event_loop()
     await artifact.start(auto_register=False)
 
-    artifact.presence.set_presence(
-        show=PresenceShow.NONE, status="Lunch", priority=2
-    )
+    artifact.presence.set_presence(show=PresenceShow.NONE, status="Lunch", priority=2)
 
     assert artifact.presence.current_presence.is_available()
     assert artifact.presence.current_presence.show == PresenceShow.NONE
@@ -159,12 +158,7 @@ async def test_get_contacts(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items({jid.bare: {"name": "My Friend", "subscription": "both"}})
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
@@ -176,7 +170,7 @@ async def test_get_contacts(jid):
     assert type(contacts[bare_jid]) is spade.presence.Contact
     assert contacts[bare_jid].name == "My Friend"
     assert contacts[bare_jid].subscription == "both"
-    assert contacts[bare_jid].ask is 'none'
+    assert contacts[bare_jid].ask == "none"
     assert contacts[bare_jid].groups == []
 
 
@@ -187,19 +181,16 @@ async def test_get_contacts_with_presence(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My Available Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items(
+        {jid.bare: {"name": "My Available Friend", "subscription": "both"}}
+    )
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
 
     presence = Presence()
-    presence['from'] = jid
-    presence.set_type('available')
+    presence["from"] = jid
+    presence.set_type("available")
 
     artifact.presence.handle_presence(presence)
 
@@ -219,22 +210,17 @@ async def test_get_contacts_with_presence_on_and_off(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items({jid.bare: {"name": "My Friend", "subscription": "both"}})
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
 
     presence = Presence()
-    presence['from'] = jid
-    presence.set_type('available')
+    presence["from"] = jid
+    presence.set_type("available")
 
     artifact.presence.handle_presence(presence)
-    presence.set_type('unavailable')
+    presence.set_type("unavailable")
     artifact.presence.handle_presence(presence)
 
     contacts = artifact.presence.get_contacts()
@@ -253,19 +239,16 @@ async def test_get_contacts_with_presence_unavailable(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My UnAvailable Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items(
+        {jid.bare: {"name": "My UnAvailable Friend", "subscription": "both"}}
+    )
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
 
     presence = Presence()
-    presence['from'] = jid
-    presence.set_type('unavailable')
+    presence["from"] = jid
+    presence.set_type("unavailable")
 
     artifact.presence.handle_presence(presence)
 
@@ -284,12 +267,7 @@ async def test_get_contact(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items({jid.bare: {"name": "My Friend", "subscription": "both"}})
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
@@ -300,7 +278,7 @@ async def test_get_contact(jid):
     assert contact.name == "My Friend"
     assert contact.subscription == "both"
     assert contact.is_subscribed()
-    assert contact.ask is 'none'
+    assert contact.ask == "none"
     assert contact.groups == []
 
 
@@ -387,8 +365,8 @@ async def test_on_available(jid):
     await artifact.start(auto_register=False)
 
     presence = Presence()
-    presence['from'] = jid
-    presence.set_type('available')
+    presence["from"] = jid
+    presence.set_type("available")
 
     artifact.presence.on_available = Mock()
 
@@ -406,8 +384,8 @@ async def test_on_unavailable(jid):
     await artifact.start(auto_register=False)
 
     presence = Presence()
-    presence['from'] = jid
-    presence.set_type('unavailable')
+    presence["from"] = jid
+    presence.set_type("unavailable")
 
     artifact.presence.on_unavailable = Mock()
 
@@ -425,7 +403,7 @@ async def test_on_subscribe(jid):
     await artifact.start(auto_register=False)
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.SUBSCRIBE.value)
 
     artifact.presence.on_subscribe = Mock()
@@ -446,13 +424,15 @@ async def test_on_subscribe_approve_all(jid):
     artifact.client = MagicMock()
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.SUBSCRIBE.value)
 
     artifact.presence.handle_subscription(presence)
 
     assert artifact.client.send_presence.called
-    artifact.client.send_presence.assert_called_with(pto=jid.bare, ptype=PresenceType.SUBSCRIBED.value)
+    artifact.client.send_presence.assert_called_with(
+        pto=jid.bare, ptype=PresenceType.SUBSCRIBED.value
+    )
 
 
 async def test_on_subscribed(jid):
@@ -461,7 +441,7 @@ async def test_on_subscribed(jid):
     await artifact.start(auto_register=False)
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.SUBSCRIBED.value)
 
     artifact.presence.contacts[jid.bare] = Contact(
@@ -488,7 +468,7 @@ async def test_on_unsubscribe(jid):
     artifact.presence.on_unsubscribe = Mock()
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.UNSUBSCRIBE.value)
 
     artifact.presence.handle_subscription(presence)
@@ -504,7 +484,7 @@ async def test_on_unsubscribed(jid):
     await artifact.start(auto_register=False)
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.UNSUBSCRIBED.value)
 
     artifact.presence.contacts[jid.bare] = Contact(
@@ -530,18 +510,13 @@ async def test_on_changed(jid):
 
     iq = Iq()
     roster = Roster()
-    roster.set_items({
-        jid.bare: {
-            "name": "My Friend",
-            "subscription": "both"
-        }
-    })
+    roster.set_items({jid.bare: {"name": "My Friend", "subscription": "both"}})
     iq.set_payload(roster)
 
     artifact.presence.handle_roster_update(iq)
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.AVAILABLE.value)
     presence.set_show(PresenceShow.CHAT.value)
 
@@ -570,7 +545,7 @@ async def test_ignore_self_presence():
     jid = artifact.jid
 
     presence = Presence()
-    presence['from'] = jid
+    presence["from"] = jid
     presence.set_type(PresenceType.AVAILABLE.value)
     presence.set_show(PresenceShow.CHAT.value)
 

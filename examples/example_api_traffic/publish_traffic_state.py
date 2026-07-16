@@ -10,6 +10,7 @@ from loguru import logger
 
 # Example data processor function that now returns processed data
 
+
 async def traffic_data_processor(data):
     traffic_state_names = {
         0: "Fluido",
@@ -21,24 +22,30 @@ async def traffic_data_processor(data):
         6: "Paso inferior denso",
         7: "Paso inferior congestionado",
         8: "Paso inferior cortado",
-        9: "Sin datos (paso inferior)"
+        9: "Sin datos (paso inferior)",
     }
 
     records = data.get("records", [])
 
-    filtered_records = [record for record in records if record['record']['fields']['estado'] not in [0, 5]]
+    filtered_records = [
+        record
+        for record in records
+        if record["record"]["fields"]["estado"] not in [0, 5]
+    ]
 
     messages = []
 
     if not filtered_records:
-        messages.append('Todas las calles tienen circulacion fluida')
+        messages.append("Todas las calles tienen circulacion fluida")
     else:
         for record in filtered_records:
-            estado_code = record['record']['fields']['estado']
+            estado_code = record["record"]["fields"]["estado"]
 
-            estado_descriptive = traffic_state_names.get(estado_code, "Estado desconocido")
+            estado_descriptive = traffic_state_names.get(
+                estado_code, "Estado desconocido"
+            )
 
-            denominacion = record['record']['fields']['denominacion']
+            denominacion = record["record"]["fields"]["denominacion"]
 
             message = f"Calle: {denominacion}, Estado: {estado_descriptive}"
 
@@ -60,13 +67,12 @@ class ConsumerAgent(ArtifactMixin, Agent):
         self.presence.subscribe(self.artifact_jid)
         self.presence.set_available()
 
-
         await self.artifacts.focus(self.artifact_jid, self.artifact_callback)
         logger.info("Agent ready and listening to the artifact")
 
 
 async def main():
-    with open('config_traffic.json', 'r') as config_file:
+    with open("config_traffic.json", "r") as config_file:
         config = json.load(config_file)
 
     XMPP_SERVER = config["XMPP_SERVER"]
@@ -78,13 +84,20 @@ async def main():
     agent_jid = f"{agent_name}@{XMPP_SERVER}"
     agent_passwd = getpass.getpass(prompt=f"Password for Agent {agent_name}> ")
 
-    api_url = config.get('api_url')
-    time_request = config.get('time_request', None)
-    artifact = APIReaderArtifact(artifact_jid, artifact_passwd, api_url, traffic_data_processor,
-                                 time_request=time_request)
+    api_url = config.get("api_url")
+    time_request = config.get("time_request", None)
+    artifact = APIReaderArtifact(
+        artifact_jid,
+        artifact_passwd,
+        api_url,
+        traffic_data_processor,
+        time_request=time_request,
+    )
     await artifact.start()
 
-    agent = ConsumerAgent(jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid)
+    agent = ConsumerAgent(
+        jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid
+    )
     await agent.start()
     await artifact.join()
     await artifact.stop()

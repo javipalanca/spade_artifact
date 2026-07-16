@@ -85,7 +85,7 @@ class MongoDBQueryArtifact(spade_artifact.Artifact):
         )
         return [data]
 
-    async def update_query(self):   #pragma: no cover
+    async def update_query(self):  # pragma: no cover
         """
         This method can be overridden to update the API URL as needed.
 

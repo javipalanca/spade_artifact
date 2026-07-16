@@ -1,4 +1,3 @@
-
 import asyncio
 
 import getpass
@@ -10,7 +9,6 @@ from spade_artifact import ArtifactMixin
 
 
 from spade_artifact.common.readers.csvreader import CSVReaderArtifact
-
 
 
 class ConsumerAgent(ArtifactMixin, Agent):
@@ -29,10 +27,9 @@ class ConsumerAgent(ArtifactMixin, Agent):
         logger.info("Agent ready and listening to the artifact")
 
 
-
 async def main():
     # Cargar configuración desde el archivo JSON
-    with open('config.json', 'r') as config_file:
+    with open("config.json", "r") as config_file:
         config = json.load(config_file)
 
     XMPP_SERVER = config["XMPP_SERVER"]
@@ -50,12 +47,19 @@ async def main():
     time_column = config.get("time_column", None)
     read_frequency = config.get("read_frequency", 1)
 
-
-    artifact = CSVReaderArtifact(artifact_jid, artifact_passwd, csv_file_path, columns_to_read,
-                                 read_frequency, time_column)
+    artifact = CSVReaderArtifact(
+        artifact_jid,
+        artifact_passwd,
+        csv_file_path,
+        columns_to_read,
+        read_frequency,
+        time_column,
+    )
     await artifact.start()
 
-    agent = ConsumerAgent(jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid)
+    agent = ConsumerAgent(
+        jid=agent_jid, password=agent_passwd, artifact_jid=artifact_jid
+    )
     await agent.start()
     await artifact.join()
     await artifact.stop()

@@ -7,23 +7,35 @@ import spade_artifact
 
 class InserterArtifact(spade_artifact.Artifact):
     """
-      An artifact for inserting and updating data in an Orion Context Broker.
+    An artifact for inserting and updating data in an Orion Context Broker.
 
-      This class facilitates communication with an Orion Context Broker instance, allowing
-      for the creation and update of entities based on received payloads. It utilizes an
-      asynchronous queue to manage incoming data and ensures that data is sent to the context
-      broker in a timely manner.
+    This class facilitates communication with an Orion Context Broker instance, allowing
+    for the creation and update of entities based on received payloads. It utilizes an
+    asynchronous queue to manage incoming data and ensures that data is sent to the context
+    broker in a timely manner.
 
-      Attributes:
-         api_url (str): The URL of the Orion Context Broker API.
-         headers (dict): Headers used for HTTP requests to the Orion Context Broker.
-         columns_update (list): A list of columns to update. If empty, all columns are updated.
-         data_processor (Callable): Function to process the data received from the artifact.
-         json_template (dict): Template for constructing JSON payloads.
-         json_exceptions (dict): Exceptions for JSON cleaning rules.
-      """
-    def __init__(self, jid, passwd, publisher_jid, host, project_name, columns_update=[],
-                 data_processor=None, json_template=None, json_exceptions=None, port='9090'):
+    Attributes:
+       api_url (str): The URL of the Orion Context Broker API.
+       headers (dict): Headers used for HTTP requests to the Orion Context Broker.
+       columns_update (list): A list of columns to update. If empty, all columns are updated.
+       data_processor (Callable): Function to process the data received from the artifact.
+       json_template (dict): Template for constructing JSON payloads.
+       json_exceptions (dict): Exceptions for JSON cleaning rules.
+    """
+
+    def __init__(
+        self,
+        jid,
+        passwd,
+        publisher_jid,
+        host,
+        project_name,
+        columns_update=[],
+        data_processor=None,
+        json_template=None,
+        json_exceptions=None,
+        port="9090",
+    ):
         """
         Initializes the InserterArtifact object with the given parameters.
 
@@ -47,11 +59,15 @@ class InserterArtifact(spade_artifact.Artifact):
         self.api_url = f"http://{host}:{port}/ngsi-ld/v1/entities"
         self.headers = {
             "Content-Type": "application/ld+json",
-            "NGSILD-Tenant": project_name
+            "NGSILD-Tenant": project_name,
         }
         self.publisher_jid = publisher_jid
         self.columns_update = columns_update
-        self.data_processor = data_processor if data_processor is not None else self.default_data_processor
+        self.data_processor = (
+            data_processor
+            if data_processor is not None
+            else self.default_data_processor
+        )
         self.payload_queue = asyncio.Queue()
         self.json_template = json_template or {}
         self.json_exceptions = json_exceptions
@@ -72,7 +88,9 @@ class InserterArtifact(spade_artifact.Artifact):
         try:
             await self.link(self.publisher_jid, self.artifact_callback)
         except Exception as e:
-            logger.error(f"Failed to link with publisher_jid {self.publisher_jid}: {str(e)}")
+            logger.error(
+                f"Failed to link with publisher_jid {self.publisher_jid}: {str(e)}"
+            )
             raise
 
     @staticmethod
@@ -89,7 +107,9 @@ class InserterArtifact(spade_artifact.Artifact):
         Returns:
             list: A list containing the original data.
         """
-        logger.info('default data processor started, no data transformation will be done')
+        logger.info(
+            "default data processor started, no data transformation will be done"
+        )
         return [data]
 
     def artifact_callback(self, artifact: str, payload: str):
@@ -155,11 +175,17 @@ class InserterArtifact(spade_artifact.Artifact):
         for column in self.columns_update:
             if column in entity_data:
                 attribute_data = entity_data[column]
-                await self.update_entity_attribute(entity_id, column, attribute_data, entity_data["@context"])
+                await self.update_entity_attribute(
+                    entity_id, column, attribute_data, entity_data["@context"]
+                )
             else:
-                logger.warning(f"Column '{column}' not found in entity data for entity '{entity_id}'.")
+                logger.warning(
+                    f"Column '{column}' not found in entity data for entity '{entity_id}'."
+                )
 
-    async def update_or_create_entity(self, entity_id: str, entity_data: dict, payload: dict):
+    async def update_or_create_entity(
+        self, entity_id: str, entity_data: dict, payload: dict
+    ):
         """
         Updates all attributes of an existing entity or creates a new entity if it does not exist.
 
@@ -168,7 +194,9 @@ class InserterArtifact(spade_artifact.Artifact):
             entity_data (dict): The data to update or create the entity with.
         """
         if await self.entity_exists(entity_id):
-            await self.update_all_attributes(entity_id, entity_data, entity_data["@context"])
+            await self.update_all_attributes(
+                entity_id, entity_data, entity_data["@context"]
+            )
 
         else:
             entity_data = self.build_entity_json(payload, clean=False)
@@ -225,7 +253,9 @@ class InserterArtifact(spade_artifact.Artifact):
                 async with session.get(url, headers=self.headers) as response:
                     return response.status == 200
             except aiohttp.ClientError as e:
-                logger.error(f"HTTP request failed while checking if entity exists: {str(e)}")
+                logger.error(
+                    f"HTTP request failed while checking if entity exists: {str(e)}"
+                )
                 return False
 
     async def create_new_entity(self, entity_data: dict):
@@ -243,17 +273,24 @@ class InserterArtifact(spade_artifact.Artifact):
         """
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.post(self.api_url, headers=self.headers, json=entity_data) as response:
+                async with session.post(
+                    self.api_url, headers=self.headers, json=entity_data
+                ) as response:
                     if response.status == 201:
-                        logger.info(f"Entity created successfully: {await response.text()}")
+                        logger.info(
+                            f"Entity created successfully: {await response.text()}"
+                        )
                     else:
                         logger.error(
                             f"Failed to create entity, status code: {response.status},"
-                            f" response: {await response.text()}")
+                            f" response: {await response.text()}"
+                        )
             except aiohttp.ClientError as e:
                 logger.error(f"Failed to create new entity: {str(e)}")
 
-    async def update_entity_attribute(self, entity_id: str, attribute: str, attribute_data: dict, context: any):
+    async def update_entity_attribute(
+        self, entity_id: str, attribute: str, attribute_data: dict, context: any
+    ):
         """
         Updates a specific attribute of an existing entity in the Orion Context Broker.
 
@@ -273,12 +310,16 @@ class InserterArtifact(spade_artifact.Artifact):
         url_post = f"{self.api_url}/{entity_id}/attrs"
 
         # Determine the type of the attribute and construct the payload accordingly
-        if attribute == 'location' and isinstance(attribute_data, dict) and "coordinates" in attribute_data:
+        if (
+            attribute == "location"
+            and isinstance(attribute_data, dict)
+            and "coordinates" in attribute_data
+        ):
             payload = {
                 "type": "GeoProperty",
                 "value": {
                     "type": "Point",
-                    "coordinates": attribute_data["coordinates"]
+                    "coordinates": attribute_data["coordinates"],
                 },
                 "@context": context,
             }
@@ -298,27 +339,41 @@ class InserterArtifact(spade_artifact.Artifact):
         async with aiohttp.ClientSession() as session:
             try:
                 # Attempt to update the attribute using PATCH
-                async with session.patch(url_patch, headers=self.headers, json=payload) as response:
+                async with session.patch(
+                    url_patch, headers=self.headers, json=payload
+                ) as response:
                     if response.status == 204:
-                        logger.info(f"Entity attribute '{attribute}' updated successfully.")
+                        logger.info(
+                            f"Entity attribute '{attribute}' updated successfully."
+                        )
                     elif response.status == 207:
                         # If the attribute doesn't exist, add it using POST
-                        logger.warning(f"Attribute '{attribute}' does not exist. Adding it using POST.")
+                        logger.warning(
+                            f"Attribute '{attribute}' does not exist. Adding it using POST."
+                        )
                         post_payload = {attribute: payload}
                         post_payload["@context"] = context
-                        async with session.post(url_post, headers=self.headers, json=post_payload) as post_response:
+                        async with session.post(
+                            url_post, headers=self.headers, json=post_payload
+                        ) as post_response:
                             if post_response.status == 204:
-                                logger.info(f"Entity attribute '{attribute}' added successfully.")
+                                logger.info(
+                                    f"Entity attribute '{attribute}' added successfully."
+                                )
                             else:
                                 logger.error(
                                     f"Failed to add entity attribute '{attribute}' with POST, status code: {post_response.status},"
-                                    f" response: {await post_response.text()}")
+                                    f" response: {await post_response.text()}"
+                                )
                     else:
                         logger.error(
                             f"Failed to update entity attribute '{attribute}' with PATCH, status code: {response.status},"
-                            f" response: {await response.text()}")
+                            f" response: {await response.text()}"
+                        )
             except aiohttp.ClientError as e:
-                logger.error(f"Failed to update entity attribute '{attribute}': {str(e)}")
+                logger.error(
+                    f"Failed to update entity attribute '{attribute}': {str(e)}"
+                )
 
     async def update_all_attributes(self, entity_id, entity_data, context):
         """
@@ -342,13 +397,10 @@ class InserterArtifact(spade_artifact.Artifact):
                 url_patch = f"{self.api_url}/{entity_id}/attrs/{attribute}"
                 url_post = f"{self.api_url}/{entity_id}/attrs"
 
-                if attribute == 'location':
+                if attribute == "location":
                     payload = {
                         "type": "GeoProperty",
-                        "value": {
-                            "type": "Point",
-                            "coordinates": value["coordinates"]
-                        },
+                        "value": {"type": "Point", "coordinates": value["coordinates"]},
                         "@context": context,
                     }
                 elif isinstance(value, dict) and "object" in value:
@@ -364,24 +416,34 @@ class InserterArtifact(spade_artifact.Artifact):
                         "@context": context,
                     }
 
-                response = await session.patch(url_patch, headers=self.headers, json=payload)
+                response = await session.patch(
+                    url_patch, headers=self.headers, json=payload
+                )
                 if response.status == 204:
                     logger.info(f"Entity attribute '{attribute}' updated successfully.")
                 elif response.status == 404:
-                    logger.warning(f"Attribute '{attribute}' does not exist. Adding it using POST.")
+                    logger.warning(
+                        f"Attribute '{attribute}' does not exist. Adding it using POST."
+                    )
                     post_payload = {attribute: payload}
                     post_payload["@context"] = context
-                    post_response = await session.post(url_post, headers=self.headers, json=post_payload)
+                    post_response = await session.post(
+                        url_post, headers=self.headers, json=post_payload
+                    )
                     if post_response.status == 204:
-                        logger.info(f"Entity attribute '{attribute}' added successfully.")
+                        logger.info(
+                            f"Entity attribute '{attribute}' added successfully."
+                        )
                     else:
                         logger.error(
                             f"Failed to add entity attribute '{attribute}' with POST, status code: {post_response.status},"
-                            f" response: {await post_response.text()}")
+                            f" response: {await post_response.text()}"
+                        )
                 else:
                     logger.error(
                         f"Failed to update entity attribute '{attribute}' with PATCH, status code: {response.status},"
-                        f" response: {await response.text()}")
+                        f" response: {await response.text()}"
+                    )
 
     async def run(self):
         """

@@ -7,18 +7,20 @@ from loguru import logger
 from spade_artifact.common.readers.mongodbreader import MongoDBQueryArtifact
 import json
 
+
 async def data_processor(data):
     """
     Processes data fetched from the in-memory MongoDB.
     """
     last_movie = data[-1]
-    title = last_movie.get('title', 'Unknown Title')
-    year = last_movie.get('year', 'Unknown Year')
-    genres = ', '.join(last_movie.get('genres', ['Unknown Genres']))
-    plot = last_movie.get('plot', 'No plot available.')
+    title = last_movie.get("title", "Unknown Title")
+    year = last_movie.get("year", "Unknown Year")
+    genres = ", ".join(last_movie.get("genres", ["Unknown Genres"]))
+    plot = last_movie.get("plot", "No plot available.")
 
     messages = [f"Title: {title}\nYear: {year}\nGenres: {genres}\nPlot: {plot}"]
     return messages
+
 
 class EventsAgent(ArtifactMixin, Agent):
     def __init__(self, *args, artifact_jid: str = None, **kwargs):
@@ -41,6 +43,7 @@ class EventsAgent(ArtifactMixin, Agent):
         await self.artifacts.focus(self.artifact_jid, self.artifact_callback)
         logger.info("Agent ready and listening to the artifact")
 
+
 async def main():
 
     with open("config.json", "r") as config_file:
@@ -55,18 +58,18 @@ async def main():
     agent_jid = f"{agent_name}@{XMPP_SERVER}"
     agent_passwd = getpass.getpass(prompt=f"Password for Agent {agent_name}> ")
 
-    time_request = config.get('time_request', None)
+    time_request = config.get("time_request", None)
 
     artifact = MongoDBQueryArtifact(
         connection_uri=config["uri"],
         database_name=config["database_name"],
         collection_name=config["collection_name"],
         operation=config["operation"],
-        query=config['query'],
+        query=config["query"],
         jid=artifact_jid,
         password=artifact_passwd,
         data_processor=data_processor,
-        time_request=time_request
+        time_request=time_request,
     )
     await artifact.start()
 

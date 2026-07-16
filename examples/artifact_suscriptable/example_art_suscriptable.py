@@ -33,6 +33,7 @@ class SubscriberArtifact(Artifact):
         await asyncio.sleep(2)
         await self.link(self.publisher_jid, self.artifact_callback)
 
+
 async def main():
     XMPP_SERVER = input("XMPP Server> ")
     publisher_jid = f"{input('Artifact name> ')}@{XMPP_SERVER}"
@@ -41,12 +42,13 @@ async def main():
 
     subscriber_jid = f"{input('Artifact name> ')}@{XMPP_SERVER}"
     subscriber_passwd = getpass.getpass()
-    subscriber = SubscriberArtifact(subscriber_jid, subscriber_passwd, publisher_jid=publisher_jid)
+    subscriber = SubscriberArtifact(
+        subscriber_jid, subscriber_passwd, publisher_jid=publisher_jid
+    )
 
     await publisher.start()
     await subscriber.start()
     await publisher.join()
-
 
     await publisher.stop()
     await subscriber.stop()

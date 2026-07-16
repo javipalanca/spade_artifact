@@ -1,5 +1,11 @@
+from unittest.mock import MagicMock
+
+from slixmpp.exceptions import IqError
+
+
 class AsyncContextManagerMock:
     """Mock for async context managers with nested mocking capabilities."""
+
     def __init__(self, mock):
         self.mock = mock
 
@@ -14,3 +20,7 @@ class AsyncContextManagerMock:
 
     def get(self, *args, **kwargs):
         return self.mock
+
+
+class MockException(IqError, MagicMock):
+    pass

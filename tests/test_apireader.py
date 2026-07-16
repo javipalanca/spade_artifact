@@ -14,7 +14,6 @@ class TestAPIReaderArtifact(AsyncTestCase):
 
 
 class TestAPIReaderArtifact(unittest.IsolatedAsyncioTestCase):
-
     def setUp(self):
         self.mock_url = "http://mockapi.com/data"
         self.api_response_data = [{"key": "value1"}, {"key": "value2"}]
@@ -23,7 +22,9 @@ class TestAPIReaderArtifact(unittest.IsolatedAsyncioTestCase):
     async def test_api_reading(self, mocked_responses):
         mocked_responses.get(self.mock_url, payload=self.api_response_data, status=200)
 
-        artifact = APIReaderArtifact("jid@test.com", "password", self.mock_url, http_method="GET")
+        artifact = APIReaderArtifact(
+            "jid@test.com", "password", self.mock_url, http_method="GET"
+        )
         artifact.publish = AsyncMock()
         artifact.presence = MagicMock()
         artifact.presence.set_available = MagicMock()

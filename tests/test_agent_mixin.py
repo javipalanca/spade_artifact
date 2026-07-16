@@ -76,10 +76,12 @@ async def test_set_on_item_published(agent):
             self.registered_payload = _data(data=self.data)
 
     msg = SlixmppMessage()
-    msg['pubsub_event']['items']['node'] = "artifact@server"
-    msg['pubsub_event']['items']['item']['publisher'] = "artifact@server"
-    msg['pubsub_event']['items']['item']['payload'] = Element("{}",)
-    msg['pubsub_event']['items']['item']['payload'].text = "payload"
+    msg["pubsub_event"]["items"]["node"] = "artifact@server"
+    msg["pubsub_event"]["items"]["item"]["publisher"] = "artifact@server"
+    msg["pubsub_event"]["items"]["item"]["payload"] = Element(
+        "{}",
+    )
+    msg["pubsub_event"]["items"]["item"]["payload"].text = "payload"
 
     agent.artifacts.on_item_published(msg)
 

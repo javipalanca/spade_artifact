@@ -7,7 +7,13 @@ from spade_artifact import Artifact, ArtifactMixin
 
 class MockedConnectedArtifact(Artifact):
     def __init__(
-        self, available=None, show=PresenceShow.NONE, status=None, priority=0, *args, **kwargs
+        self,
+        available=None,
+        show=PresenceShow.NONE,
+        status=None,
+        priority=0,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         if status is None:
@@ -27,7 +33,7 @@ class MockedConnectedArtifact(Artifact):
         """Mock pubsub after connection como en la versión anterior"""
         await super()._hook_plugin_after_connection(*args, **kwargs)
 
-        if not hasattr(self.client, 'send'):
+        if not hasattr(self.client, "send"):
             self.client.send = AsyncMock()
 
         self.pubsub = Mock()

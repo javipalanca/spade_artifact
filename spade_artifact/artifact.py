@@ -146,7 +146,7 @@ class Artifact(PubSubMixin, AbstractArtifact):
         asyncio.run_coroutine_threadsafe(self.run(), loop=self.loop)
 
     async def _async_connect(self):  # pragma: no cover
-        """ connect and authenticate to the XMPP server. Async mode. """
+        """connect and authenticate to the XMPP server. Async mode."""
 
         if self.client is not None:
             self.client.connected_event = asyncio.Event()

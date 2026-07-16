@@ -16,14 +16,14 @@ def create_in_memory_database():
     conn = sqlite3.connect("mydatabase.db")
     cur = conn.cursor()
 
-    cur.execute('''CREATE TABLE events (name TEXT, date TEXT, location TEXT)''')
+    cur.execute("""CREATE TABLE events (name TEXT, date TEXT, location TEXT)""")
 
     sample_data = [
-        ('Event 1', '2024-04-15', 'Location A'),
-        ('Event 2', '2024-05-20', 'Location B'),
-        ('Event 3', '2024-06-25', 'Location C')
+        ("Event 1", "2024-04-15", "Location A"),
+        ("Event 2", "2024-05-20", "Location B"),
+        ("Event 3", "2024-06-25", "Location C"),
     ]
-    cur.executemany('INSERT INTO events VALUES (?,?,?)', sample_data)
+    cur.executemany("INSERT INTO events VALUES (?,?,?)", sample_data)
 
     conn.commit()
     return conn
@@ -36,7 +36,9 @@ async def events_data_processor(data):
     messages = []
     event = data[-1]
     event_name, event_date, event_location = event
-    messages.append(f"Event: {event_name}, Date: {event_date}, Location: {event_location}")
+    messages.append(
+        f"Event: {event_name}, Date: {event_date}, Location: {event_location}"
+    )
     return messages
 
 
@@ -77,7 +79,7 @@ async def main():
     agent_jid = f"{agent_name}@{XMPP_SERVER}"
     agent_passwd = getpass.getpass(prompt=f"Password for Agent {agent_name}> ")
 
-    time_request = config.get('time_request', None)
+    time_request = config.get("time_request", None)
 
     artifact = DatabaseQueryArtifact(
         jid=artifact_jid,
@@ -86,7 +88,7 @@ async def main():
         connection_params=config["connection_params"],
         query=config["query"],
         data_processor=events_data_processor,
-        time_request=time_request
+        time_request=time_request,
     )
     await artifact.start()
 

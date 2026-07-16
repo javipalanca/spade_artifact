@@ -7,4 +7,4 @@ else:
     from asynctest import Mock, CoroutineMock as AsyncMock, MagicMock, patch
     from asynctest import TestCase as AsyncTestCase
 
-__all__ = ['AsyncMock', 'MagicMock', 'Mock', 'patch', 'AsyncTestCase']
+__all__ = ["AsyncMock", "MagicMock", "Mock", "patch", "AsyncTestCase"]
