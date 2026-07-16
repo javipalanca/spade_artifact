@@ -49,7 +49,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "spade-artifact"
-copyright = "2019, Javi Palanca"
+copyright = "2026, Javi Palanca"
 author = "Javi Palanca"
 
 # The version info for the project you're documenting, acts as replacement
