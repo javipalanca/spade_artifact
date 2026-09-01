@@ -1,0 +1,649 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spade_artifact.common.readers package &mdash; spade-artifact 0.3.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Readers" href="readers.html" />
+    <link rel="prev" title="spade_artifact.common package" href="spade_artifact.common.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            spade-artifact
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">spade-artifact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readers.html">Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">spade-artifact</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api.html">API Documentation</a></li>
+          <li class="breadcrumb-item"><a href="spade_artifact.html">spade_artifact package</a></li>
+          <li class="breadcrumb-item"><a href="spade_artifact.common.html">spade_artifact.common package</a></li>
+      <li class="breadcrumb-item active">spade_artifact.common.readers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/spade_artifact.common.readers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spade-artifact-common-readers-package">
+<h1>spade_artifact.common.readers package<a class="headerlink" href="#spade-artifact-common-readers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-spade_artifact.common.readers.apireader">
+<span id="spade-artifact-common-readers-apireader-module"></span><h2>spade_artifact.common.readers.apireader module<a class="headerlink" href="#module-spade_artifact.common.readers.apireader" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.apireader.APIReaderArtifact">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">spade_artifact.common.readers.apireader.</span></span><span class="sig-name descname"><span class="pre">APIReaderArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/apireader.html#APIReaderArtifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.apireader.APIReaderArtifact" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spade_artifact.html#spade_artifact.artifact.Artifact" title="spade_artifact.artifact.Artifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">Artifact</span></code></a></p>
+<p>An artifact for asynchronously reading and processing data from an API endpoint.</p>
+<p>This artifact sends HTTP requests to a specified API URL and processes the response data. It supports customizable HTTP methods, parameters, and headers. The processed data is then published at regular intervals.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>api_url (str): The URL of the API endpoint to send requests to.
+data_processor (Callable): A function that processes the data received from the API. It takes the response data as input and returns a list of messages to be published.
+http_method (str, optional): The HTTP method to use for the request (e.g., ‘GET’, ‘POST’). Defaults to ‘GET’.
+params (dict, optional): A dictionary of parameters to be sent in the query string of the request. Defaults to an empty dictionary.
+headers (dict, optional): A dictionary of HTTP headers to send with the request. Defaults to an empty dictionary.
+time_request(int, optional) : Time in minutes to wait for the request data update.</p>
+</dd>
+<dt>Args:</dt><dd><p>jid (str): The JID (Jabber Identifier) of the artifact.
+passwd (str): The password for the artifact to authenticate with the XMPP server.
+api_url (str): The URL of the API endpoint to send requests to.
+data_processor (Callable): The function that will process the data received from the API.
+http_method (str, optional): The HTTP method to use for the request. Defaults to ‘GET’.
+params (dict, optional): Parameters to include in the request. Defaults to None, which is converted to an empty dictionary.
+headers (dict, optional): HTTP headers to include in the request. Defaults to None, which is converted to an empty dictionary.
+time_request(int, optional) : Time in minutes to wait for the request data update.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.apireader.APIReaderArtifact.default_data_processor">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default_data_processor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/apireader.html#APIReaderArtifact.default_data_processor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.apireader.APIReaderArtifact.default_data_processor" title="Link to this definition"></a></dt>
+<dd><p>Default data processor function that passes the data through without any transformation.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data: The data received from the API request.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A list containing the original data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.apireader.APIReaderArtifact.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/apireader.html#APIReaderArtifact.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.apireader.APIReaderArtifact.run" title="Link to this definition"></a></dt>
+<dd><p>Starts the artifact’s main operation of sending requests to the API and processing the responses.</p>
+<p>This method sends an HTTP request to the specified API URL using the specified method, parameters, and headers. The response is then processed using the <cite>data_processor</cite> function, and the processed data is published at regular intervals.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.apireader.APIReaderArtifact.setup">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/apireader.html#APIReaderArtifact.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.apireader.APIReaderArtifact.setup" title="Link to this definition"></a></dt>
+<dd><p>Setup artifact before startup.
+This coroutine may be overloaded.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.apireader.APIReaderArtifact.update_url">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/apireader.html#APIReaderArtifact.update_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.apireader.APIReaderArtifact.update_url" title="Link to this definition"></a></dt>
+<dd><p>This method can be overridden to update the API URL as needed.</p>
+<p>By default, this method does nothing. Developers can override it
+to add specific URL update logic for their application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spade_artifact.common.readers.context_broker_inserter">
+<span id="spade-artifact-common-readers-context-broker-inserter-module"></span><h2>spade_artifact.common.readers.context_broker_inserter module<a class="headerlink" href="#module-spade_artifact.common.readers.context_broker_inserter" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">spade_artifact.common.readers.context_broker_inserter.</span></span><span class="sig-name descname"><span class="pre">InserterArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publisher_jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'9090'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spade_artifact.html#spade_artifact.artifact.Artifact" title="spade_artifact.artifact.Artifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">Artifact</span></code></a></p>
+<p>An artifact for inserting and updating data in an Orion Context Broker.</p>
+<p>This class facilitates communication with an Orion Context Broker instance, allowing
+for the creation and update of entities based on received payloads. It utilizes an
+asynchronous queue to manage incoming data and ensures that data is sent to the context
+broker in a timely manner.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>api_url (str): The URL of the Orion Context Broker API.
+headers (dict): Headers used for HTTP requests to the Orion Context Broker.
+columns_update (list): A list of columns to update. If empty, all columns are updated.
+data_processor (Callable): Function to process the data received from the artifact.
+json_template (dict): Template for constructing JSON payloads.
+json_exceptions (dict): Exceptions for JSON cleaning rules.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.artifact_callback">
+<span class="sig-name descname"><span class="pre">artifact_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.artifact_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.artifact_callback" title="Link to this definition"></a></dt>
+<dd><p>Callback function triggered when data is received from the linked artifact.</p>
+<p>This function processes the received payload using the data processor and
+puts the processed data into the payload queue.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>artifact (str): The name or identifier of the artifact sending the data.
+payload (str): The JSON payload received from the artifact.</p>
+</dd>
+<dt>Raises:</dt><dd><p>json.JSONDecodeError: If the payload is not valid JSON.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.build_entity_json">
+<span class="sig-name descname"><span class="pre">build_entity_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.build_entity_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.build_entity_json" title="Link to this definition"></a></dt>
+<dd><p>Constructs the JSON structure for an Orion entity based on the received payload and a template.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>payload (dict): The payload received from the publisher artifact.
+clean (bool): Whether to clean the result by removing entries without ‘value’ or ‘type’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: A dictionary representing the JSON structure of the Orion entity.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.create_new_entity">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create_new_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.create_new_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.create_new_entity" title="Link to this definition"></a></dt>
+<dd><p>Creates a new entity in the Orion Context Broker.</p>
+<p>This function sends a POST request to the Orion Context Broker to create a new entity
+with the provided data.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_data (dict): The data for the new entity.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the entity creation is unsuccessful.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.default_data_processor">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default_data_processor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.default_data_processor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.default_data_processor" title="Link to this definition"></a></dt>
+<dd><p>Default data processor function that passes the data through without any transformation.</p>
+<p>This function serves as the default data processor, which simply returns the data encapsulated
+in a list without performing any modifications.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data (dict): The data received from the API request.</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: A list containing the original data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.entity_exists">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">entity_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.entity_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.entity_exists" title="Link to this definition"></a></dt>
+<dd><p>Checks if an entity exists in the Orion Context Broker.</p>
+<p>This function sends a GET request to the Orion Context Broker to check if an entity with
+the specified ID exists.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to check.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the entity exists, False otherwise.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.process_and_send_data">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">process_and_send_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.process_and_send_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.process_and_send_data" title="Link to this definition"></a></dt>
+<dd><p>Processes the given payload and sends the data to the Orion Context Broker.</p>
+<p>This function constructs the entity ID and JSON data, checks if the entity exists,
+and either updates the existing entity’s attributes or creates a new entity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>payload (dict): The payload containing data to be sent to the Orion Context Broker.</p>
+</dd>
+<dt>Raises:</dt><dd><p>KeyError: If ‘type’ or ‘id’ keys are missing in the payload.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.run" title="Link to this definition"></a></dt>
+<dd><p>Continuously processes and sends data from the payload queue to the Orion Context Broker.</p>
+<p>This function sets the presence to available and enters an infinite loop where it waits
+for data from the payload queue, processes it, and sends it to the Orion Context Broker.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>Exception: If processing or sending data fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.setup">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.setup" title="Link to this definition"></a></dt>
+<dd><p>Sets up the InserterArtifact by making it available and linking it to the publisher artifact.</p>
+<p>This method sets the presence to available, waits for a second, and then links the artifact
+to the publisher using the provided publisher_jid. If the linking fails, it logs an error.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>Exception: If linking to the publisher fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_all_attributes">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_all_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.update_all_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_all_attributes" title="Link to this definition"></a></dt>
+<dd><p>Updates all attributes of an existing entity in the Orion Context Broker.</p>
+<p>This function sends a PATCH request to the Orion Context Broker to update each attribute
+of an entity with the provided data. If any attribute does not exist, it uses a POST request to add it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+entity_data (dict): The data to update the entity with.
+context (any): The JSON-LD context to include in the payload.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the attribute update is unsuccessful.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_entity_attribute">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_entity_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.update_entity_attribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_entity_attribute" title="Link to this definition"></a></dt>
+<dd><p>Updates a specific attribute of an existing entity in the Orion Context Broker.</p>
+<p>This function sends a PATCH request to the Orion Context Broker to update a specific attribute
+of an entity with the provided data. If the attribute does not exist, it uses a POST request to add it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+attribute (str): The attribute of the entity to update.
+attribute_data (dict): The data to update the attribute with.
+context (any): The JSON-LD context to include in the payload.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the attribute update is unsuccessful.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_or_create_entity">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_or_create_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.update_or_create_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_or_create_entity" title="Link to this definition"></a></dt>
+<dd><p>Updates all attributes of an existing entity or creates a new entity if it does not exist.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update or create.
+entity_data (dict): The data to update or create the entity with.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_specific_attributes">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_specific_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/context_broker_inserter.html#InserterArtifact.update_specific_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_specific_attributes" title="Link to this definition"></a></dt>
+<dd><p>Updates specific attributes of an existing entity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+entity_data (dict): The data to update the entity with.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spade_artifact.common.readers.csvreader">
+<span id="spade-artifact-common-readers-csvreader-module"></span><h2>spade_artifact.common.readers.csvreader module<a class="headerlink" href="#module-spade_artifact.common.readers.csvreader" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.csvreader.CSVReaderArtifact">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">spade_artifact.common.readers.csvreader.</span></span><span class="sig-name descname"><span class="pre">CSVReaderArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/csvreader.html#CSVReaderArtifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.csvreader.CSVReaderArtifact" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spade_artifact.html#spade_artifact.artifact.Artifact" title="spade_artifact.artifact.Artifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">Artifact</span></code></a></p>
+<p>An artifact for asynchronously reading and processing data from CSV files.</p>
+<p>This artifact reads data from a CSV file and publishes each row at regular intervals or based on a time column.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>csv_file (str): Path to the CSV file to be read.
+columns (list[str], optional): A list of column names to read from the CSV file. If None, all columns are read.
+frequency (int, optional): The frequency in seconds at which rows are published if no time_column is specified. Defaults to 1.
+time_column (str, optional): The name of the column that contains timestamp information. If specified, rows are published based on the time difference between rows instead of the fixed frequency.</p>
+</dd>
+<dt>Args:</dt><dd><p>jid (str): The JID (Jabber Identifier) of the artifact.
+passwd (str): The password for the artifact to authenticate with the XMPP server.
+csv_file (str): Path to the CSV file to be read.
+columns (list[str], optional): A list of column names to read from the CSV file. Defaults to None.
+frequency (int, optional): The frequency in seconds at which rows are published if no time_column is specified. Defaults to 1.
+time_column (str, optional): The name of the column that contains timestamp information.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.csvreader.CSVReaderArtifact.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/csvreader.html#CSVReaderArtifact.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.csvreader.CSVReaderArtifact.run" title="Link to this definition"></a></dt>
+<dd><p>Starts the artifact’s main operation of reading from the CSV and publishing rows.</p>
+<p>This method reads the CSV file row by row, and if a time_column is specified, it waits for the time difference between the current and last row before publishing the next row. If no time_column is specified, it publishes rows at a fixed frequency defined by the <cite>frequency</cite> attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.csvreader.CSVReaderArtifact.setup">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/csvreader.html#CSVReaderArtifact.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.csvreader.CSVReaderArtifact.setup" title="Link to this definition"></a></dt>
+<dd><p>Sets up the artifact by marking its presence as available on the XMPP server.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spade_artifact.common.readers.mongodbreader">
+<span id="spade-artifact-common-readers-mongodbreader-module"></span><h2>spade_artifact.common.readers.mongodbreader module<a class="headerlink" href="#module-spade_artifact.common.readers.mongodbreader" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">spade_artifact.common.readers.mongodbreader.</span></span><span class="sig-name descname"><span class="pre">MongoDBQueryArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spade_artifact.html#spade_artifact.artifact.Artifact" title="spade_artifact.artifact.Artifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">Artifact</span></code></a></p>
+<p>An enhanced artifact for executing various MongoDB operations and processing the results.</p>
+<p>This class supports performing a wide range of database operations on MongoDB, such as find,
+insert, update, and delete. It also allows for processing the results and performing actions
+at regular intervals.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>connection_uri (str): MongoDB connection URI.
+database_name (str): Name of the MongoDB database.
+collection_name (str): Name of the MongoDB collection.
+operation (str): Type of MongoDB operation to be performed. This attribute supports the following operations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘find’: Retrieves documents from the collection that match the criteria specified in <cite>query</cite>. The <cite>query</cite></p></li>
+</ul>
+<blockquote>
+<div><p>should be a dictionary representing the MongoDB query.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>‘insert’: Inserts a new document into the collection. The <cite>query</cite> should contain the document to be inserted.</p></li>
+<li><p>‘update’: Updates documents in the collection that match the criteria. The <cite>query</cite> should be a dictionary</p></li>
+</ul>
+<blockquote>
+<div><p>with ‘filter’ and ‘update’ keys, where ‘filter’ defines the criteria to identify documents to be updated,
+and ‘update’ specifies the modifications.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>‘delete’: Deletes documents from the collection that match the criteria specified in <cite>query</cite>. The <cite>query</cite></p></li>
+</ul>
+<blockquote>
+<div><p>should be a dictionary representing the MongoDB deletion criteria.</p>
+</div></blockquote>
+</div></blockquote>
+<p>query (dict): The MongoDB query or document for operations.
+data_processor (Callable): A function to process the data received from the operation.
+time_request (int, optional): Time in seconds to wait before re-executing the operation.</p>
+</dd>
+<dt>Args:</dt><dd><p>connection_uri (str): MongoDB connection URI.
+database_name (str): Name of the MongoDB database.
+collection_name (str): Name of the MongoDB collection.
+operation (str): Type of MongoDB operation.
+query (dict): The MongoDB query or document.
+jid (str): JID for the spade artifact.
+password (str): Password for the spade artifact.
+data_processor (Callable, optional): Function to process the operation results. Defaults to None.
+time_request (int, optional): Time in seconds for the operation re-execution interval. Defaults to None.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.connect_to_database">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_to_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact.connect_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.connect_to_database" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously establishes a connection to the MongoDB database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.default_data_processor">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default_data_processor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact.default_data_processor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.default_data_processor" title="Link to this definition"></a></dt>
+<dd><p>Default data processor function that passes the data through without any transformation.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data: The data received from the API request.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A list containing the original data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.execute_operation">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">execute_operation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact.execute_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.execute_operation" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously executes the specified MongoDB operation and fetches the results.</p>
+<p>This method supports various operations like find, insert, update, and delete.
+The operation to be performed is determined by <cite>self.operation</cite>.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The data fetched or affected by executing the specified operation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.run" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously and periodically executes the MongoDB query based on <cite>self.time_request</cite>.</p>
+<p>After each iteration, the method waits for <cite>self.time_request</cite> seconds before the next
+execution. When the loop ends, it ensures that the client connection to MongoDB is properly closed to release
+resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.update_query">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/mongodbreader.html#MongoDBQueryArtifact.update_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.update_query" title="Link to this definition"></a></dt>
+<dd><p>This method can be overridden to update the API URL as needed.</p>
+<p>By default, this method does nothing. Developers can override it
+to add specific URL update logic for their application.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spade_artifact.common.readers.sqlreader">
+<span id="spade-artifact-common-readers-sqlreader-module"></span><h2>spade_artifact.common.readers.sqlreader module<a class="headerlink" href="#module-spade_artifact.common.readers.sqlreader" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">spade_artifact.common.readers.sqlreader.</span></span><span class="sig-name descname"><span class="pre">DatabaseQueryArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spade_artifact.html#spade_artifact.artifact.Artifact" title="spade_artifact.artifact.Artifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">Artifact</span></code></a></p>
+<p>An artifact for executing and processing database queries.</p>
+<p>This class supports executing database queries either on SQL or PostgreSQL databases,
+processing the results, and performing actions at regular intervals.</p>
+<dl>
+<dt>Attributes:</dt><dd><dl>
+<dt>db_type (str): The type of the database. This parameter accepts the following values:</dt><dd><blockquote>
+<div><ul class="simple">
+<li><p>‘mysql’: Indicates that the database is a MySQL database. Requires <cite>pymysql</cite> library.</p></li>
+<li><p>‘sqlite’: Indicates that the database is a SQLite database. Uses Python’s built-in <cite>sqlite3</cite> library.</p></li>
+<li><p>‘postgresql’: Indicates that the database is a PostgreSQL database. Requires <cite>psycopg</cite> library.</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>connection_params (dict): Details required to connect to the database. The structure of this dictionary varies based on the <cite>db_type</cite>:</dt><dd><ul>
+<li><dl>
+<dt>For ‘mysql’ and ‘postgresql’: This dictionary should include the following keys:</dt><dd><ul class="simple">
+<li><p>‘host’: The hostname or IP address of the database server.</p></li>
+<li><p>‘user’: The username used to authenticate with the database.</p></li>
+<li><p>‘password’: The password used to authenticate with the database.</p></li>
+<li><p>‘database’: The name of the database to connect to.</p></li>
+</ul>
+<p>Additionally, for ‘postgresql’, the key ‘port’ can be included to specify the database server port.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For ‘sqlite’: This dictionary needs only one key:</dt><dd><ul class="simple">
+<li><p>‘database’: The file path of the SQLite database. If the file does</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>query (str): The database query to be executed.
+data_processor (Callable): A function to process the data received from the query.
+time_request (int, optional): Time in seconds to wait before re-executing the query.</p>
+</dd>
+</dl>
+</dd>
+<dt>Args:</dt><dd><p>db_type (str): The type of the database.
+connection_params (dict): Connection details for the database.
+query (str): The database query.
+data_processor (Callable, optional): Function to process the query results. Defaults to None.
+time_request (int, optional): Time in seconds for the query re-execution interval. Defaults to None.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.connect_to_database">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_to_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.connect_to_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.connect_to_database" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously establishes a connection to the database using the appropriate library
+based on <cite>db_type</cite>.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>ValueError: If <cite>db_type</cite> is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.default_data_processor">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default_data_processor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.default_data_processor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.default_data_processor" title="Link to this definition"></a></dt>
+<dd><p>Default data processor function that passes the data through without any transformation.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data: The data received from the API request.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A list containing the original data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.execute_query">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">execute_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.execute_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.execute_query" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously executes the database query and fetches the results.</p>
+<p>Ensures a database connection is established, then executes the query stored in <cite>self.query</cite>,
+fetches all results, and processes them using <cite>self.data_processor</cite>.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The data fetched from executing <cite>self.query</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.prepare_connection_string">
+<span class="sig-name descname"><span class="pre">prepare_connection_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.prepare_connection_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.prepare_connection_string" title="Link to this definition"></a></dt>
+<dd><p>Prepares the database connection string or parameters based on the database type after validating them.
+Returns:</p>
+<blockquote>
+<div><p>The connection string for PostgreSQL, a dictionary of parameters for MySQL, or the database filename for SQLite.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>ValueError: If there are issues with the connection parameters or the database type is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.run">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.run" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously and periodically executes the database query based on <cite>self.time_request</cite>.</p>
+<p>After each iteration, the method waits for <cite>self.time_request</cite> seconds before the next
+execution. When the loop ends, it ensures that the cursor and the database connection
+are properly closed to release resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.update_query">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.update_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.update_query" title="Link to this definition"></a></dt>
+<dd><p>This method can be overridden to update the API URL as needed.</p>
+<p>By default, this method does nothing. Developers can override it
+to add specific URL update logic for their application.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.validate_connection_params">
+<span class="sig-name descname"><span class="pre">validate_connection_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spade_artifact/common/readers/sqlreader.html#DatabaseQueryArtifact.validate_connection_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spade_artifact.common.readers.sqlreader.DatabaseQueryArtifact.validate_connection_params" title="Link to this definition"></a></dt>
+<dd><p>Validates the connection parameters based on the database type.
+Raises:</p>
+<blockquote>
+<div><p>ValueError: If required parameters are missing or if there’s any issue with the parameters provided.</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spade_artifact.common.readers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spade_artifact.common.readers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spade_artifact.common.html" class="btn btn-neutral float-left" title="spade_artifact.common package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="readers.html" class="btn btn-neutral float-right" title="Readers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Javi Palanca.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

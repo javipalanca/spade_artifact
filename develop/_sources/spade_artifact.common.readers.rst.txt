@@ -1,0 +1,53 @@
+spade\_artifact.common.readers package
+======================================
+
+Submodules
+----------
+
+spade\_artifact.common.readers.apireader module
+-----------------------------------------------
+
+.. automodule:: spade_artifact.common.readers.apireader
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+spade\_artifact.common.readers.context\_broker\_inserter module
+---------------------------------------------------------------
+
+.. automodule:: spade_artifact.common.readers.context_broker_inserter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+spade\_artifact.common.readers.csvreader module
+-----------------------------------------------
+
+.. automodule:: spade_artifact.common.readers.csvreader
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+spade\_artifact.common.readers.mongodbreader module
+---------------------------------------------------
+
+.. automodule:: spade_artifact.common.readers.mongodbreader
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+spade\_artifact.common.readers.sqlreader module
+-----------------------------------------------
+
+.. automodule:: spade_artifact.common.readers.sqlreader
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: spade_artifact.common.readers
+   :members:
+   :show-inheritance:
+   :undoc-members:
