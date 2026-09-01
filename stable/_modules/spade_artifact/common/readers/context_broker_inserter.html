@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spade_artifact.common.readers.context_broker_inserter &mdash; SPADE Artifact 0.3.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SPADE Artifact
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">spade-artifact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readers.html">Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SPADE Artifact</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spade_artifact.common.readers.context_broker_inserter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spade_artifact.common.readers.context_broker_inserter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aiohttp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">spade_artifact</span>
+
+
+<div class="viewcode-block" id="InserterArtifact">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InserterArtifact</span><span class="p">(</span><span class="n">spade_artifact</span><span class="o">.</span><span class="n">Artifact</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An artifact for inserting and updating data in an Orion Context Broker.</span>
+
+<span class="sd">    This class facilitates communication with an Orion Context Broker instance, allowing</span>
+<span class="sd">    for the creation and update of entities based on received payloads. It utilizes an</span>
+<span class="sd">    asynchronous queue to manage incoming data and ensures that data is sent to the context</span>
+<span class="sd">    broker in a timely manner.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">       api_url (str): The URL of the Orion Context Broker API.</span>
+<span class="sd">       headers (dict): Headers used for HTTP requests to the Orion Context Broker.</span>
+<span class="sd">       columns_update (list): A list of columns to update. If empty, all columns are updated.</span>
+<span class="sd">       data_processor (Callable): Function to process the data received from the artifact.</span>
+<span class="sd">       json_template (dict): Template for constructing JSON payloads.</span>
+<span class="sd">       json_exceptions (dict): Exceptions for JSON cleaning rules.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">jid</span><span class="p">,</span>
+        <span class="n">passwd</span><span class="p">,</span>
+        <span class="n">publisher_jid</span><span class="p">,</span>
+        <span class="n">host</span><span class="p">,</span>
+        <span class="n">project_name</span><span class="p">,</span>
+        <span class="n">columns_update</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">data_processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">json_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">json_exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="s2">&quot;9090&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the InserterArtifact object with the given parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          jid (str): Jabber ID for the artifact.</span>
+<span class="sd">          passwd (str): Password for the artifact&#39;s Jabber ID.</span>
+<span class="sd">          publisher_jid (str): Jabber ID of the publisher artifact.</span>
+<span class="sd">          host (str): The hostname or IP address of the server where the context broker is running.</span>
+<span class="sd">          project_name (str): Name of the project (used as tenant in headers).</span>
+<span class="sd">          columns_update (list, optional): List of columns to update. Default is an empty list.</span>
+<span class="sd">          data_processor (Callable, optional): Function to process data. If None, uses default_data_processor.</span>
+<span class="sd">          json_template (dict, optional): Template for constructing JSON payloads. Default is an empty dictionary.</span>
+<span class="sd">          json_exceptions (dict, optional): Exceptions for JSON cleaning rules. Default is an empty dictionary.</span>
+<span class="sd">          port (str, optional): : The network port number on which the context broker service is listening</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jid</span><span class="p">,</span> <span class="n">passwd</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">json_exceptions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">json_exceptions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">/ngsi-ld/v1/entities&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/ld+json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NGSILD-Tenant&quot;</span><span class="p">:</span> <span class="n">project_name</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">publisher_jid</span> <span class="o">=</span> <span class="n">publisher_jid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns_update</span> <span class="o">=</span> <span class="n">columns_update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data_processor</span>
+            <span class="k">if</span> <span class="n">data_processor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_data_processor</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload_queue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_template</span> <span class="o">=</span> <span class="n">json_template</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_exceptions</span> <span class="o">=</span> <span class="n">json_exceptions</span>
+
+<div class="viewcode-block" id="InserterArtifact.setup">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.setup">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets up the InserterArtifact by making it available and linking it to the publisher artifact.</span>
+
+<span class="sd">        This method sets the presence to available, waits for a second, and then links the artifact</span>
+<span class="sd">        to the publisher using the provided publisher_jid. If the linking fails, it logs an error.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If linking to the publisher fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">publisher_jid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to link with publisher_jid </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">publisher_jid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.default_data_processor">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.default_data_processor">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default data processor function that passes the data through without any transformation.</span>
+
+<span class="sd">        This function serves as the default data processor, which simply returns the data encapsulated</span>
+<span class="sd">        in a list without performing any modifications.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): The data received from the API request.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list containing the original data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;default data processor started, no data transformation will be done&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.artifact_callback">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.artifact_callback">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function triggered when data is received from the linked artifact.</span>
+
+<span class="sd">        This function processes the received payload using the data processor and</span>
+<span class="sd">        puts the processed data into the payload queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            artifact (str): The name or identifier of the artifact sending the data.</span>
+<span class="sd">            payload (str): The JSON payload received from the artifact.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            json.JSONDecodeError: If the payload is not valid JSON.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received: [</span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">] -&gt; </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to decode JSON payload: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">data_item</span> <span class="ow">in</span> <span class="n">processed_data</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">payload_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">data_item</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.process_and_send_data">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.process_and_send_data">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_and_send_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes the given payload and sends the data to the Orion Context Broker.</span>
+
+<span class="sd">        This function constructs the entity ID and JSON data, checks if the entity exists,</span>
+<span class="sd">        and either updates the existing entity&#39;s attributes or creates a new entity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            payload (dict): The payload containing data to be sent to the Orion Context Broker.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If &#39;type&#39; or &#39;id&#39; keys are missing in the payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;urn:ngsi-ld:</span><span class="si">{</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing key in payload: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">entity_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_entity_json</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_update</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_specific_attributes</span><span class="p">(</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_or_create_entity</span><span class="p">(</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.update_specific_attributes">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_specific_attributes">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_specific_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates specific attributes of an existing entity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_id (str): The ID of the entity to update.</span>
+<span class="sd">            entity_data (dict): The data to update the entity with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_update</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="p">:</span>
+                <span class="n">attribute_data</span> <span class="o">=</span> <span class="n">entity_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_entity_attribute</span><span class="p">(</span>
+                    <span class="n">entity_id</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">attribute_data</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; not found in entity data for entity &#39;</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.update_or_create_entity">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_or_create_entity">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_or_create_entity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates all attributes of an existing entity or creates a new entity if it does not exist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_id (str): The ID of the entity to update or create.</span>
+<span class="sd">            entity_data (dict): The data to update or create the entity with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_exists</span><span class="p">(</span><span class="n">entity_id</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_all_attributes</span><span class="p">(</span>
+                <span class="n">entity_id</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">entity_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_entity_json</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_entity</span><span class="p">(</span><span class="n">entity_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.build_entity_json">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.build_entity_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_entity_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs the JSON structure for an Orion entity based on the received payload and a template.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            payload (dict): The payload received from the publisher artifact.</span>
+<span class="sd">            clean (bool): Whether to clean the result by removing entries without &#39;value&#39; or &#39;type&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: A dictionary representing the JSON structure of the Orion entity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace_placeholders</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_template</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Always include the &quot;@context&quot; field</span>
+        <span class="k">if</span> <span class="s2">&quot;@context&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_template</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_template</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Context must be provided&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Clean the result to remove entries without &#39;value&#39; or &#39;type&#39;</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_exceptions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_missing_values</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_exceptions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.entity_exists">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.entity_exists">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">entity_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if an entity exists in the Orion Context Broker.</span>
+
+<span class="sd">        This function sends a GET request to the Orion Context Broker to check if an entity with</span>
+<span class="sd">        the specified ID exists.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_id (str): The ID of the entity to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the entity exists, False otherwise.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If the HTTP request fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span>
+            <span class="k">except</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;HTTP request failed while checking if entity exists: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.create_new_entity">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.create_new_entity">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_new_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new entity in the Orion Context Broker.</span>
+
+<span class="sd">        This function sends a POST request to the Orion Context Broker to create a new entity</span>
+<span class="sd">        with the provided data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_data (dict): The data for the new entity.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If the HTTP request fails or the entity creation is unsuccessful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">entity_data</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">201</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Entity created successfully: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Failed to create entity, status code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot; response: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+            <span class="k">except</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to create new entity: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.update_entity_attribute">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_entity_attribute">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_entity_attribute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attribute_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">any</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates a specific attribute of an existing entity in the Orion Context Broker.</span>
+
+<span class="sd">        This function sends a PATCH request to the Orion Context Broker to update a specific attribute</span>
+<span class="sd">        of an entity with the provided data. If the attribute does not exist, it uses a POST request to add it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_id (str): The ID of the entity to update.</span>
+<span class="sd">            attribute (str): The attribute of the entity to update.</span>
+<span class="sd">            attribute_data (dict): The data to update the attribute with.</span>
+<span class="sd">            context (any): The JSON-LD context to include in the payload.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If the HTTP request fails or the attribute update is unsuccessful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url_patch</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">/attrs/</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">url_post</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">/attrs&quot;</span>
+
+        <span class="c1"># Determine the type of the attribute and construct the payload accordingly</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">attribute</span> <span class="o">==</span> <span class="s2">&quot;location&quot;</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="s2">&quot;coordinates&quot;</span> <span class="ow">in</span> <span class="n">attribute_data</span>
+        <span class="p">):</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GeoProperty&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">attribute_data</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">],</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;object&quot;</span> <span class="ow">in</span> <span class="n">attribute_data</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Relationship&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="n">attribute_data</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">attribute_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">attribute_data</span><span class="p">),</span>
+                <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Attempt to update the attribute using PATCH</span>
+                <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+                    <span class="n">url_patch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; updated successfully.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">207</span><span class="p">:</span>
+                        <span class="c1"># If the attribute doesn&#39;t exist, add it using POST</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; does not exist. Adding it using POST.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">post_payload</span> <span class="o">=</span> <span class="p">{</span><span class="n">attribute</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
+                        <span class="n">post_payload</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
+                        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                            <span class="n">url_post</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">post_payload</span>
+                        <span class="p">)</span> <span class="k">as</span> <span class="n">post_response</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">post_response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; added successfully.&quot;</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Failed to add entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; with POST, status code: </span><span class="si">{</span><span class="n">post_response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,&quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot; response: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">post_response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Failed to update entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; with PATCH, status code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot; response: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+            <span class="k">except</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to update entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.update_all_attributes">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.update_all_attributes">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_all_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">entity_data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates all attributes of an existing entity in the Orion Context Broker.</span>
+
+<span class="sd">        This function sends a PATCH request to the Orion Context Broker to update each attribute</span>
+<span class="sd">        of an entity with the provided data. If any attribute does not exist, it uses a POST request to add it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entity_id (str): The ID of the entity to update.</span>
+<span class="sd">            entity_data (dict): The data to update the entity with.</span>
+<span class="sd">            context (any): The JSON-LD context to include in the payload.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If the HTTP request fails or the attribute update is unsuccessful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">entity_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;@context&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">url_patch</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">/attrs/</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">url_post</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">/attrs&quot;</span>
+
+                <span class="k">if</span> <span class="n">attribute</span> <span class="o">==</span> <span class="s2">&quot;location&quot;</span><span class="p">:</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GeoProperty&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">]},</span>
+                        <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;object&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Relationship&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+                        <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+                    <span class="p">}</span>
+
+                <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+                    <span class="n">url_patch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; updated successfully.&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; does not exist. Adding it using POST.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">post_payload</span> <span class="o">=</span> <span class="p">{</span><span class="n">attribute</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
+                    <span class="n">post_payload</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
+                    <span class="n">post_response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                        <span class="n">url_post</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">post_payload</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">post_response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; added successfully.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Failed to add entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; with POST, status code: </span><span class="si">{</span><span class="n">post_response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot; response: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">post_response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to update entity attribute &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">&#39; with PATCH, status code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">,&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; response: </span><span class="si">{</span><span class="k">await</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InserterArtifact.run">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.context_broker_inserter.InserterArtifact.run">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Continuously processes and sends data from the payload queue to the Orion Context Broker.</span>
+
+<span class="sd">        This function sets the presence to available and enters an infinite loop where it waits</span>
+<span class="sd">        for data from the payload queue, processes it, and sends it to the Orion Context Broker.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If processing or sending data fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">payload</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_and_send_data</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing and sending data: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_placeholders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">template</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">replaced_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace_placeholders</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">replaced_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">replaced_value</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_replace_placeholders</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">template</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">payload</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="n">template</span>
+                        <span class="k">if</span> <span class="s2">&quot;{&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="s2">&quot;}&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">template</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_missing_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">exception_key</span> <span class="o">=</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">exception_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                        <span class="n">key</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Point&quot;</span><span class="p">:</span>
+                            <span class="n">v</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Relationship&quot;</span><span class="p">:</span>
+                            <span class="n">v</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;urn:ngsi-ld:Relationship:default&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">v</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_fill_missing_values</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_fill_missing_values</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fill_missing_values</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clean_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">keys_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_clean_result</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">exceptions</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                            <span class="n">keys_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">condition1</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="s2">&quot;value&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span>
+                            <span class="ow">and</span> <span class="s2">&quot;coordinates&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span>
+                            <span class="ow">and</span> <span class="s2">&quot;object&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span>
+                        <span class="p">)</span>
+                        <span class="n">condition2</span> <span class="o">=</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;type&quot;</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;id&quot;</span>
+                        <span class="k">if</span> <span class="n">condition1</span> <span class="ow">and</span> <span class="n">condition2</span><span class="p">:</span>
+                            <span class="n">keys_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_clean_result</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="n">keys_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys_to_remove</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">items_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clean_result</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="p">:</span>
+                    <span class="n">items_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items_to_remove</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Javi Palanca.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+spade\_artifact.common package
+==============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   spade_artifact.common.readers
+
+Module contents
+---------------
+
+.. automodule:: spade_artifact.common
+   :members:
+   :show-inheritance:
+   :undoc-members:

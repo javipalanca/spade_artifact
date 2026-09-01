@@ -1,0 +1,981 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Readers &mdash; SPADE Artifact 0.3.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="spade_artifact.common.readers package" href="spade_artifact.common.readers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SPADE Artifact
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">spade-artifact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Readers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#csv-reader">CSV Reader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-example">Use Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-code">Example Code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#api-reader">API Reader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Use Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Example Code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sql-reader">SQL Reader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Use Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Example Code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mongodb-reader">Mongodb Reader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Use Example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id15">Example Code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contextbrokerinserter">ContextBrokerInserter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#args">Args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Use Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Example Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#explanation">Explanation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SPADE Artifact</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Readers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/readers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="readers">
+<h1>Readers<a class="headerlink" href="#readers" title="Link to this heading"></a></h1>
+<section id="csv-reader">
+<h2>CSV Reader<a class="headerlink" href="#csv-reader" title="Link to this heading"></a></h2>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">CSVReaderArtifact</span></code> is a class derived from <code class="docutils literal notranslate"><span class="pre">spade_artifact.Artifact</span></code> for asynchronous reading and publishing of data from CSV files. It reads data row by row and can either publish at regular intervals or based on a time column.</p>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>csv_file (str)</strong>: Path to the CSV file.</p></li>
+<li><p><strong>columns (list[str], optional)</strong>: Specific columns to be read. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all columns are read.</p></li>
+<li><p><strong>frequency (int, optional)</strong>: The interval in seconds at which rows are published if no <code class="docutils literal notranslate"><span class="pre">time_column</span></code> is specified. Defaults to 1 second.</p></li>
+<li><p><strong>time_column (str, optional)</strong>: Specifies the column with timestamp information for timed publishing.</p></li>
+</ul>
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>setup()</strong>:
+Marks the artifact as available on the XMPP server, preparing it for operation.</p></li>
+<li><p><strong>run()</strong>:
+Begins reading the CSV file, publishing each row at the set frequency or based on the timestamps in the <code class="docutils literal notranslate"><span class="pre">time_column</span></code> if specified.</p></li>
+</ul>
+</section>
+<section id="use-example">
+<h3>Use Example<a class="headerlink" href="#use-example" title="Link to this heading"></a></h3>
+<p>This example demonstrates how to integrate the <code class="docutils literal notranslate"><span class="pre">CSVReaderArtifact</span></code> with a <code class="docutils literal notranslate"><span class="pre">ConsumerAgent</span></code> to listen for and process published data. The configuration involves setting up a <code class="docutils literal notranslate"><span class="pre">ConsumerAgent</span></code> that subscribes to the <code class="docutils literal notranslate"><span class="pre">CSVReaderArtifact</span></code> and handles incoming data payloads.</p>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration</strong>: Load agent and artifact details from a configuration file (<cite>config.json</cite>).</p></li>
+<li><p><strong>Initialization</strong>: Initialize the <code class="docutils literal notranslate"><span class="pre">CSVReaderArtifact</span></code> with connection details and start it.</p></li>
+<li><p><strong>Agent Setup</strong>: Start the <code class="docutils literal notranslate"><span class="pre">ConsumerAgent</span></code> and subscribe it to the <code class="docutils literal notranslate"><span class="pre">CSVReaderArtifact</span></code>. Define a callback function to handle received data.</p></li>
+<li><p><strong>Execution</strong>: Run both the artifact and agent concurrently. Data processed by the artifact is published and handled by the agent.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To execute these examples successfully, you must have your own JID (Jabber Identifier) and an XMPP server configured. Ensure that you update the <cite>config.json</cite> file with your specific configuration parameters before running the examples. This setup is necessary to connect and authenticate with your XMPP server properly.</p>
+</div>
+<section id="example-code">
+<h4>Example Code<a class="headerlink" href="#example-code" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact.common.readers.csvreader</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSVReaderArtifact</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConsumerAgent</span><span class="p">(</span><span class="n">ArtifactMixin</span><span class="p">,</span> <span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span> <span class="o">=</span> <span class="n">artifact_jid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Agent ready and listening to the artifact&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;config.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;XMPP_SERVER&quot;</span><span class="p">]</span>
+    <span class="n">artifact_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">artifact_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">artifact_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for artifact </span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">agent_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;agent_name&quot;</span><span class="p">]</span>
+    <span class="n">agent_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">agent_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for Agent </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">csv_file_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv_file_path&quot;</span><span class="p">]</span>
+    <span class="n">columns_to_read</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;columns_to_read&quot;</span><span class="p">]</span>
+
+    <span class="n">time_column</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time_column&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">read_frequency</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;read_frequency&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">artifact</span> <span class="o">=</span> <span class="n">CSVReaderArtifact</span><span class="p">(</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">artifact_passwd</span><span class="p">,</span> <span class="n">csv_file_path</span><span class="p">,</span> <span class="n">columns_to_read</span><span class="p">,</span> <span class="n">read_frequency</span><span class="p">,</span> <span class="n">time_column</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">ConsumerAgent</span><span class="p">(</span><span class="n">jid</span><span class="o">=</span><span class="n">agent_jid</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">agent_passwd</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agents and Artifacts have been stopped&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="api-reader">
+<h2>API Reader<a class="headerlink" href="#api-reader" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">APIReaderArtifact</span></code> asynchronously reads and processes data from an API endpoint. It sends HTTP requests to the specified API URL and processes the response data, supporting customizable HTTP methods, parameters, and headers. The processed data is then published at regular intervals.</p>
+</section>
+<section id="id2">
+<h3>Attributes<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>api_url (str)</strong>: The URL of the API endpoint to send requests to.</p></li>
+<li><p><strong>data_processor (Callable)</strong>: A function that processes the data received from the API. It returns a list of messages to be published.</p></li>
+<li><p><strong>http_method (str, optional)</strong>: The HTTP method to use for the request, e.g., ‘GET’, ‘POST’. Defaults to ‘GET’.</p></li>
+<li><p><strong>params (dict, optional)</strong>: Parameters to be sent in the query string of the request. Defaults to an empty dictionary.</p></li>
+<li><p><strong>headers (dict, optional)</strong>: HTTP headers to send with the request. Defaults to an empty dictionary.</p></li>
+<li><p><strong>time_request (int, optional)</strong>: Time in minutes to wait for the request data update, converted to seconds.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Methods<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>setup()</strong>:
+Marks the artifact’s presence as available on the XMPP server.</p></li>
+<li><p><strong>run()</strong>:
+Initiates sending HTTP requests at regular intervals to the API URL, processes the responses with the <code class="docutils literal notranslate"><span class="pre">data_processor</span></code> function, and publishes the processed data.</p></li>
+<li><p><strong>update_url()</strong>:
+An overridable method to update the API URL as needed, tailored to specific application requirements.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Use Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>This example demonstrates how to configure and use  an extension of the <code class="docutils literal notranslate"><span class="pre">APIReaderArtifact</span></code>, to periodically fetch and process earthquake data from an API. The artifact is used with a <code class="docutils literal notranslate"><span class="pre">EarthquakeAgent</span></code> that subscribes and listens for published data.</p>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration</strong>: Load agent, artifact, and API details from a configuration file (<cite>config_earthquake.json</cite>).</p></li>
+<li><p><strong>Initialization</strong>: Initialize the <code class="docutils literal notranslate"><span class="pre">EarthquakeReaderArtifact</span></code> with necessary details including the API URL, data processing function, and operational parameters.</p></li>
+<li><p><strong>Agent Setup</strong>: Start the <code class="docutils literal notranslate"><span class="pre">EarthquakeAgent</span></code> and subscribe it to the <code class="docutils literal notranslate"><span class="pre">EarthquakeReaderArtifact</span></code>. Define a callback function to handle and log received data.</p></li>
+<li><p><strong>Execution</strong>: Run both the artifact and agent. The artifact periodically updates its query URL based on the current time, fetches data from the API, processes it, and publishes the results, which the agent then handles.</p></li>
+</ol>
+<section id="id5">
+<h4>Example Code<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact.common.readers.apireader</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIReaderArtifact</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EarthquakeReaderArtifact</span><span class="p">(</span><span class="n">APIReaderArtifact</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">api_url</span><span class="p">,</span> <span class="n">data_processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">http_method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">time_request</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jid</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">api_url</span><span class="p">,</span> <span class="n">data_processor</span><span class="p">,</span> <span class="n">http_method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">time_request</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># This method dynamically updates the API URL based on the current time, setting a time window of the last three minutes.</span>
+        <span class="c1"># This is crucial for fetching only the most recent earthquake data to avoid redundancy and excessive data retrieval.</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;geojson&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;starttime&#39;</span><span class="p">:</span> <span class="n">start_time</span><span class="p">,</span>
+            <span class="s1">&#39;endtime&#39;</span><span class="p">:</span> <span class="n">end_time</span><span class="p">,</span>
+            <span class="s1">&#39;minmagnitude&#39;</span><span class="p">:</span> <span class="s1">&#39;4&#39;</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_template</span><span class="si">}</span><span class="s2">?</span><span class="si">{</span><span class="n">urlencode</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated url : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Earthquake data processor function that parses and formats the received JSON data into readable messages.</span>
+<span class="c1"># Each message includes the place, magnitude, and time of the earthquake, which are then published by the artifact.</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">earthquake_data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">messages</span>
+
+    <span class="k">for</span> <span class="n">earthquake</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]:</span>
+        <span class="n">place</span> <span class="o">=</span> <span class="n">earthquake</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;place&#39;</span><span class="p">]</span>
+        <span class="n">magnitude</span> <span class="o">=</span> <span class="n">earthquake</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;mag&#39;</span><span class="p">]</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">earthquake</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Place: </span><span class="si">{</span><span class="n">place</span><span class="si">}</span><span class="s2">, Magnitude: </span><span class="si">{</span><span class="n">magnitude</span><span class="si">}</span><span class="s2">, Time: </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">messages</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EarthquakeAgent</span><span class="p">(</span><span class="n">ArtifactMixin</span><span class="p">,</span> <span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span> <span class="o">=</span> <span class="n">artifact_jid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="c1"># This method logs the data received from the EarthquakeReaderArtifact.</span>
+        <span class="c1"># It acts as a simple observer that reacts whenever new data is published by the artifact.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Sets up the agent, subscribing it to the artifact and marking itself available for receiving published data.</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Agent ready and listening to the artifact&quot;</span><span class="p">)</span>
+
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;config_earthquake.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;XMPP_SERVER&quot;</span><span class="p">]</span>
+    <span class="n">artifact_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">artifact_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">artifact_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for artifact </span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">agent_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;agent_name&quot;</span><span class="p">]</span>
+    <span class="n">agent_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">agent_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for Agent </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">api_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;api_url&#39;</span><span class="p">)</span>
+    <span class="n">time_request</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_request&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">artifact</span> <span class="o">=</span> <span class="n">EarthquakeReaderArtifact</span><span class="p">(</span>
+        <span class="n">jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">passwd</span><span class="o">=</span><span class="n">artifact_passwd</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="n">api_url</span><span class="p">,</span>
+        <span class="n">data_processor</span><span class="o">=</span><span class="n">earthquake_data_processor</span><span class="p">,</span> <span class="n">time_request</span><span class="o">=</span><span class="n">time_request</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">EarthquakeAgent</span><span class="p">(</span><span class="n">jid</span><span class="o">=</span><span class="n">agent_jid</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">agent_passwd</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agents and Artifacts have been stopped&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="sql-reader">
+<h2>SQL Reader<a class="headerlink" href="#sql-reader" title="Link to this heading"></a></h2>
+<section id="id6">
+<h3>Description<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">DatabaseQueryArtifact</span></code> executes database queries asynchronously, supporting multiple database types including MySQL, SQLite, and PostgreSQL. It manages the query execution, result processing, and timed re-execution, all performed at regular intervals.</p>
+</section>
+<section id="id7">
+<h3>Attributes<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>db_type (str)</strong>: Specifies the database type (‘mysql’, ‘sqlite’, ‘postgresql’).</p></li>
+<li><p><strong>connection_params (dict)</strong>: Contains the parameters needed to establish a database connection. Varies depending on <cite>db_type</cite>.</p></li>
+<li><p><strong>query (str)</strong>: The SQL query to be executed.</p></li>
+<li><p><strong>data_processor (Callable, optional)</strong>: A function to process the results of the query.</p></li>
+<li><p><strong>time_request (int, optional)</strong>: Time in seconds between query executions.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Methods<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>setup()</strong>:
+Prepares the artifact for operation by establishing its presence on the XMPP server.</p></li>
+<li><p><strong>run()</strong>:
+Periodically executes the database query, processes the results, and publishes the data.</p></li>
+<li><p><strong>validate_connection_params()</strong>:
+Checks if all necessary connection parameters are present and valid based on the database type.</p></li>
+<li><p><strong>connect_to_database()</strong>:
+Establishes a connection to the database using the appropriate driver and connection parameters.</p></li>
+<li><p><strong>execute_query()</strong>:
+Executes the stored query and fetches the results using the established database connection.</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Use Example<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>This example demonstrates configuring and using the <code class="docutils literal notranslate"><span class="pre">DatabaseQueryArtifact</span></code> to interact with an in-memory SQLite database. The artifact fetches event data from the database, which is processed and handled by an <code class="docutils literal notranslate"><span class="pre">EventsAgent</span></code>.</p>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Database Setup</strong>: Create an in-memory SQLite database and populate it with sample event data.</p></li>
+<li><p><strong>Initialization</strong>:  Initialize the <code class="docutils literal notranslate"><span class="pre">DatabaseQueryArtifact</span></code> with the necessary database connection parameters and SQL query for fetching data.</p></li>
+<li><p><strong>Agent Setup</strong>: Start the <code class="docutils literal notranslate"><span class="pre">EventsAgent</span></code> and subscribe it to the <code class="docutils literal notranslate"><span class="pre">DatabaseQueryArtifact</span></code>. Define a callback function to handle and log received data.</p></li>
+<li><p><strong>Execution</strong>: Run both the artifact and agent. The artifact executes the SQL query, processes the results, and publishes them, which the agent then handles.</p></li>
+</ol>
+<section id="id10">
+<h4>Example Code<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact.common.readers.sqlreader</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseQueryArtifact</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_in_memory_database</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an in-memory SQLite database and populates it with sample data.</span>
+<span class="sd">    This function is crucial for setting up a temporary testing environment where</span>
+<span class="sd">    database operations can be performed without persistent side effects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;mydatabase.db&quot;</span><span class="p">)</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;CREATE TABLE events (name TEXT, date TEXT, location TEXT)&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">sample_data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Event 1&#39;</span><span class="p">,</span> <span class="s1">&#39;2024-04-15&#39;</span><span class="p">,</span> <span class="s1">&#39;Location A&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Event 2&#39;</span><span class="p">,</span> <span class="s1">&#39;2024-05-20&#39;</span><span class="p">,</span> <span class="s1">&#39;Location B&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Event 3&#39;</span><span class="p">,</span> <span class="s1">&#39;2024-06-25&#39;</span><span class="p">,</span> <span class="s1">&#39;Location C&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO events VALUES (?,?,?)&#39;</span><span class="p">,</span> <span class="n">sample_data</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">conn</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">events_data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes data fetched from the database. Extracts and formats the last event data for publication.</span>
+<span class="sd">    This data processor is designed to convert raw database records into a more consumable format for</span>
+<span class="sd">    further actions or notifications.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Assume the latest event data is to be processed</span>
+    <span class="n">event_name</span><span class="p">,</span> <span class="n">event_date</span><span class="p">,</span> <span class="n">event_location</span> <span class="o">=</span> <span class="n">event</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2">, Date: </span><span class="si">{</span><span class="n">event_date</span><span class="si">}</span><span class="s2">, Location: </span><span class="si">{</span><span class="n">event_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">messages</span>
+
+<span class="c1"># The DatabaseQueryArtifact is used to execute SQL queries within an XMPP environment.</span>
+<span class="c1"># This artifact handles the database connection, query execution, and scheduling of operations.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventsAgent</span><span class="p">(</span><span class="n">ArtifactMixin</span><span class="p">,</span> <span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the agent that will interact with the DatabaseQueryArtifact.</span>
+<span class="sd">        This agent listens for the results published by the artifact and handles them</span>
+<span class="sd">        according to the specified business logic or operational needs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span> <span class="o">=</span> <span class="n">artifact_jid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function to handle the data processed by the artifact.</span>
+<span class="sd">        Logs each received message from the artifact.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets up the agent, subscribing it to the artifact and marking itself available for receiving published data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Agent ready and listening to the artifact&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">in_memory_db</span> <span class="o">=</span> <span class="n">create_in_memory_database</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;XMPP_SERVER&quot;</span><span class="p">]</span>
+    <span class="n">artifact_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">artifact_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">artifact_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for artifact </span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">agent_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;agent_name&quot;</span><span class="p">]</span>
+    <span class="n">agent_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">agent_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for Agent </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">time_request</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_request&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">artifact</span> <span class="o">=</span> <span class="n">DatabaseQueryArtifact</span><span class="p">(</span>
+        <span class="n">jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">artifact_passwd</span><span class="p">,</span>
+        <span class="n">db_type</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;db_type&quot;</span><span class="p">],</span>
+        <span class="n">connection_params</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;connection_params&quot;</span><span class="p">],</span>
+        <span class="n">query</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">],</span>
+        <span class="n">data_processor</span><span class="o">=</span><span class="n">events_data_processor</span><span class="p">,</span>
+        <span class="n">time_request</span><span class="o">=</span><span class="n">time_request</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">EventsAgent</span><span class="p">(</span><span class="n">jid</span><span class="o">=</span><span class="n">agent_jid</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">agent_passwd</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agents and Artifacts have been stopped&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">in_memory_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS events&quot;</span><span class="p">)</span>
+    <span class="n">in_memory_db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">in_memory_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;mydatabase.db&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="mongodb-reader">
+<h2>Mongodb Reader<a class="headerlink" href="#mongodb-reader" title="Link to this heading"></a></h2>
+<section id="id11">
+<h3>Description<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">MongoDBQueryArtifact</span></code> facilitates executing various MongoDB operations asynchronously, handling operations such as find, insert, update, and delete. It processes the results and allows for performing actions at set intervals, making it ideal for dynamic data handling in MongoDB.</p>
+</section>
+<section id="id12">
+<h3>Attributes<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>connection_uri (str)</strong>: MongoDB connection URI used to establish a connection to the database.</p></li>
+<li><p><strong>database_name (str)</strong>: Name of the MongoDB database where operations are performed.</p></li>
+<li><p><strong>collection_name (str)</strong>: Name of the MongoDB collection to operate on.</p></li>
+<li><p><strong>operation (str)</strong>: Specifies the type of operation to perform (‘find’, ‘insert’, ‘update’, ‘delete’), determining how the <cite>query</cite> is handled.</p></li>
+<li><p><strong>query (dict)</strong>: MongoDB query or document for the operation. Structure depends on the operation type.</p></li>
+<li><p><strong>data_processor (Callable, optional)</strong>: Function to process the data received from the operation. Defaults to a basic processor that passes data without transformation.</p></li>
+<li><p><strong>time_request (int, optional)</strong>: Interval in seconds to wait before re-executing the operation, allowing for periodic updates.</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Methods<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>setup()</strong>:
+Prepares the artifact for operation by setting its presence as available on the XMPP server.</p></li>
+<li><p><strong>run()</strong>:
+Periodically executes the specified MongoDB operation according to <cite>self.time_request</cite>, processes the results, and publishes them.</p></li>
+<li><p><strong>connect_to_database()</strong>:
+Establishes an asynchronous connection to MongoDB, preparing the specified database and collection for operations.</p></li>
+<li><p><strong>execute_operation()</strong>:
+Executes the MongoDB operation defined in <cite>self.operation</cite> and handles the results based on the operation type (find, insert, update, delete).</p></li>
+<li><p><strong>update_query()</strong>:
+An optional method that can be overridden to dynamically update the query before execution, suitable for applications requiring query modifications on-the-fly.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>Use Example<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>This example demonstrates configuring and using the <code class="docutils literal notranslate"><span class="pre">MongoDBQueryArtifact</span></code> to interact with a MongoDB database. The artifact fetches movie data from the database, which is processed and handled by an <code class="docutils literal notranslate"><span class="pre">EventsAgent</span></code>.</p>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration</strong>: Load agent and artifact details from a configuration file (<cite>config.json</cite>), including the MongoDB connection parameters.</p></li>
+<li><p><strong>Initialization</strong>: Initialize the <code class="docutils literal notranslate"><span class="pre">MongoDBQueryArtifact</span></code> with the necessary MongoDB connection URI, database name, collection name, operation type, and query.</p></li>
+<li><p><strong>Agent Setup</strong>: Start the <code class="docutils literal notranslate"><span class="pre">EventsAgent</span></code> and subscribe it to the <code class="docutils literal notranslate"><span class="pre">MongoDBQueryArtifact</span></code>. Define a callback function to handle and log received data.</p></li>
+<li><p><strong>Execution</strong>: Run both the artifact and agent. The artifact executes the MongoDB operation, processes the results, and publishes them, which the agent then handles.</p></li>
+</ol>
+<section id="id15">
+<h4>Example Code<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
+<p>The following Python script demonstrates how the <code class="docutils literal notranslate"><span class="pre">MongoDBQueryArtifact</span></code> and <code class="docutils literal notranslate"><span class="pre">EventsAgent</span></code> are configured and used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getppass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact.common.readers.mongodbreader</span><span class="w"> </span><span class="kn">import</span> <span class="n">MongoDBQueryArtifact</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes data fetched from the MongoDB database.</span>
+<span class="sd">    Assumes that data contains at least one movie document and formats the last movie&#39;s details into a message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">last_movie</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">last_movie</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown Title&#39;</span><span class="p">)</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">last_movie</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown Year&#39;</span><span class="p">)</span>
+    <span class="n">genres</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">last_movie</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;genres&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Unknown Genres&#39;</span><span class="p">]))</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">last_movie</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="s1">&#39;No plot available.&#39;</span><span class="p">)</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Title: </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s2">Year: </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="se">\n</span><span class="s2">Genres: </span><span class="si">{</span><span class="n">genres</span><span class="si">}</span><span class="se">\n</span><span class="s2">Plot: </span><span class="si">{</span><span class="n">plot</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">messages</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EventsAgent</span><span class="p">(</span><span class="n">ArtifactMixin</span><span class="p">,</span> <span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span> <span class="o">=</span> <span class="n">artifact_jid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function to handle the data processed by the artifact.</span>
+<span class="sd">        Logs each received message from the artifact.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from </span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets up the agent, subscribing it to the artifact and marking itself available for receiving published data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Agent ready and listening to the artifact&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;XMPP_SERVER&quot;</span><span class="p">]</span>
+    <span class="n">artifact_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">artifact_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">artifact_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for artifact </span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">agent_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;agent_name&quot;</span><span class="p">]</span>
+    <span class="n">agent_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">agent_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Password for Agent </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">time_request</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_request&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">artifact</span> <span class="o">=</span> <span class="n">MongoDBQueryArtifact</span><span class="p">(</span>
+        <span class="n">connection_uri</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">],</span>
+        <span class="n">database_name</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;database_name&quot;</span><span class="p">],</span>
+        <span class="n">collection_name</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;collection_name&quot;</span><span class="p">],</span>
+        <span class="n">operation</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;operation&quot;</span><span class="p">],</span>
+        <span class="n">query</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">],</span>
+        <span class="n">jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">artifact_passwd</span><span class="p">,</span>
+        <span class="n">data_processor</span><span class="o">=</span><span class="n">data_processor</span><span class="p">,</span>
+        <span class="n">time_request</span><span class="o">=</span><span class="n">time_request</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">EventsAgent</span><span class="p">(</span><span class="n">jid</span><span class="o">=</span><span class="n">agent_jid</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">agent_passwd</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="o">=</span><span class="n">artifact_jid</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">artifact</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agents and Artifacts have been stopped&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This example is not functional on its own. To run it, you must have a MongoDB database set up. The code has been tested with a test database on MongoDB Atlas.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="contextbrokerinserter">
+<h2>ContextBrokerInserter<a class="headerlink" href="#contextbrokerinserter" title="Link to this heading"></a></h2>
+<p>An artifact for inserting and updating data in an Orion Context Broker.</p>
+<p>This class facilitates communication with an Orion Context Broker instance, allowing
+for the creation and update of entities based on received payloads. It utilizes an
+asynchronous queue to manage incoming data and ensures that data is sent to the context
+broker in a timely manner.</p>
+<section id="id16">
+<h3>Attributes<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>api_url (str)</strong>: The URL of the Orion Context Broker API.</p></li>
+<li><p><strong>headers (dict)</strong>: Headers used for HTTP requests to the Orion Context Broker.</p></li>
+<li><p><strong>columns_update (list)</strong>: A list of columns to update. If empty, all columns are updated.</p></li>
+<li><p><strong>data_processor (Callable)</strong>: Function to process the data received from the artifact.</p></li>
+<li><p><strong>json_template (dict)</strong>: Template for constructing JSON payloads.</p></li>
+<li><p><strong>json_exceptions (dict)</strong>: Exceptions for JSON cleaning rules.</p></li>
+</ul>
+</section>
+<section id="args">
+<h3>Args<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>jid (str)</strong>: Jabber ID for the artifact.</p></li>
+<li><p><strong>passwd (str)</strong>: Password for the artifact’s Jabber ID.</p></li>
+<li><p><strong>publisher_jid (str)</strong>: Jabber ID of the publisher artifact.</p></li>
+<li><p><strong>orion_ip (str)</strong>: IP address of the Orion Context Broker.</p></li>
+<li><p><strong>project_name (str)</strong>: Name of the project (used as tenant in headers).</p></li>
+<li><p><strong>columns_update (list, optional)</strong>: List of columns to update. Default is an empty list.</p></li>
+<li><p><strong>data_processor (Callable, optional)</strong>: Function to process data. If None, uses default_data_processor.</p></li>
+<li><p><strong>json_template (dict, optional)</strong>: Template for constructing JSON payloads. Default is an empty dictionary.</p></li>
+<li><p><strong>json_exceptions (dict, optional)</strong>: Exceptions for JSON cleaning rules. Default is an empty dictionary.</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>Methods<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul>
+<li><p><strong>setup()</strong></p>
+<p>Sets up the ContextBrokerInserter by making it available and linking it to the publisher artifact.</p>
+<p>This method sets the presence to available, waits for a second, and then links the artifact
+to the publisher using the provided publisher_jid. If the linking fails, it logs an error.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>Exception: If linking to the publisher fails.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>default_data_processor(data: dict) -&gt; list</strong></p>
+<p>Default data processor function that passes the data through without any transformation.</p>
+<p>This function serves as the default data processor, which simply returns the data encapsulated
+in a list without performing any modifications.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data (dict): The data received from the API request.</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: A list containing the original data.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>artifact_callback(artifact: str, payload: str)</strong></p>
+<p>Callback function triggered when data is received from the linked artifact.</p>
+<p>This function processes the received payload using the data processor and
+puts the processed data into the payload queue.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>artifact (str): The name or identifier of the artifact sending the data.
+payload (str): The JSON payload received from the artifact.</p>
+</dd>
+<dt>Raises:</dt><dd><p>json.JSONDecodeError: If the payload is not valid JSON.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>process_and_send_data(payload: dict)</strong></p>
+<p>Processes the given payload and sends the data to the Orion Context Broker.</p>
+<p>This function constructs the entity ID and JSON data, checks if the entity exists,
+and either updates the existing entity’s attributes or creates a new entity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>payload (dict): The payload containing data to be sent to the Orion Context Broker.</p>
+</dd>
+<dt>Raises:</dt><dd><p>KeyError: If ‘type’ or ‘id’ keys are missing in the payload.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>update_specific_attributes(entity_id: str, entity_data: dict)</strong></p>
+<p>Updates specific attributes of an existing entity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+entity_data (dict): The data to update the entity with.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>update_or_create_entity(entity_id: str, entity_data: dict, payload: dict)</strong></p>
+<p>Updates all attributes of an existing entity or creates a new entity if it does not exist.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update or create.
+entity_data (dict): The data to update or create the entity with.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>build_entity_json(payload, clean=True)</strong></p>
+<p>Constructs the JSON structure for an Orion entity based on the received payload and a template.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>payload (dict): The payload received from the publisher artifact.
+clean (bool): Whether to clean the result by removing entries without ‘value’ or ‘type’.</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: A dictionary representing the JSON structure of the Orion entity.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>entity_exists(entity_id: str) -&gt; bool</strong></p>
+<p>Checks if an entity exists in the Orion Context Broker.</p>
+<p>This function sends a GET request to the Orion Context Broker to check if an entity with
+the specified ID exists.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to check.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the entity exists, False otherwise.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>create_new_entity(entity_data: dict)</strong></p>
+<p>Creates a new entity in the Orion Context Broker.</p>
+<p>This function sends a POST request to the Orion Context Broker to create a new entity
+with the provided data.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_data (dict): The data for the new entity.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the entity creation is unsuccessful.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>update_entity_attribute(entity_id: str, attribute: str, attribute_data: dict, context: any)</strong></p>
+<p>Updates a specific attribute of an existing entity in the Orion Context Broker.</p>
+<p>This function sends a PATCH request to the Orion Context Broker to update a specific attribute
+of an entity with the provided data. If the attribute does not exist, it uses a POST request to add it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+attribute (str): The attribute of the entity to update.
+attribute_data (dict): The data to update the attribute with.
+context (any): The JSON-LD context to include in the payload.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the attribute update is unsuccessful.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>update_all_attributes(entity_id, entity_data, context)</strong></p>
+<p>Updates all attributes of an existing entity in the Orion Context Broker.</p>
+<p>This function sends a PATCH request to the Orion Context Broker to update each attribute
+of an entity with the provided data. If any attribute does not exist, it uses a POST request to add it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_id (str): The ID of the entity to update.
+entity_data (dict): The data to update the entity with.
+context (any): The JSON-LD context to include in the payload.</p>
+</dd>
+<dt>Raises:</dt><dd><p>Exception: If the HTTP request fails or the attribute update is unsuccessful.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>run()</strong></p>
+<p>Continuously processes and sends data from the payload queue to the Orion Context Broker.</p>
+<p>This function sets the presence to available and enters an infinite loop where it waits
+for data from the payload queue, processes it, and sends it to the Orion Context Broker.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>Exception: If processing or sending data fails.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="id18">
+<h3>Use Example<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<p>This section provides a functional example of how to use the <cite>ContextBrokerInserter</cite> class.</p>
+</section>
+<section id="id19">
+<h3>Example Code<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">spade_artifact</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact.common.readers.context_broker_inserter</span><span class="w"> </span><span class="kn">import</span> <span class="n">InserterArtifact</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PublisherArtifact</span><span class="p">(</span><span class="n">spade_artifact</span><span class="o">.</span><span class="n">Artifact</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jid</span><span class="p">,</span> <span class="n">passwd</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+                <span class="n">payload_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Publishing data: </span><span class="si">{</span><span class="n">payload_json</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">payload_json</span><span class="p">))</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">360</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;config.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;XMPP_SERVER&quot;</span><span class="p">]</span>
+    <span class="n">publisher_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;publisher_artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">publisher_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">publisher_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">publisher_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Password for publisher artifact&gt; &quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;payload.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">payload_file</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">payload_file</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;json_template.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_template_file</span><span class="p">:</span>
+        <span class="n">json_template</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_template_file</span><span class="p">)</span>
+
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">PublisherArtifact</span><span class="p">(</span><span class="n">publisher_jid</span><span class="p">,</span> <span class="n">publisher_passwd</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+    <span class="n">subscriber_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;subscriber_artifact_name&quot;</span><span class="p">]</span>
+    <span class="n">subscriber_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subscriber_name</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">subscriber_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Password for subscriber artifact&gt; &quot;</span><span class="p">)</span>
+
+    <span class="n">orion_ip</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;orion_ip&quot;</span><span class="p">]</span>
+    <span class="n">project_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_name&quot;</span><span class="p">]</span>
+
+    <span class="n">subscriber</span> <span class="o">=</span> <span class="n">InserterArtifact</span><span class="p">(</span><span class="n">subscriber_jid</span><span class="p">,</span> <span class="n">subscriber_passwd</span><span class="p">,</span> <span class="n">publisher_jid</span><span class="p">,</span> <span class="n">orion_ip</span><span class="p">,</span>
+                                  <span class="n">project_name</span><span class="p">,</span> <span class="n">json_template</span><span class="o">=</span><span class="n">json_template</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">publisher</span><span class="o">.</span><span class="n">join</span><span class="p">(),</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">join</span><span class="p">())</span>
+
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agents and Artifacts have been stopped&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="explanation">
+<h3>Explanation<a class="headerlink" href="#explanation" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><strong>Configuration</strong>:</dt><dd><ul class="simple">
+<li><p>Load the configuration details from <cite>config.json</cite>.</p></li>
+<li><p>Extract necessary parameters like <cite>XMPP_SERVER</cite>, <cite>publisher_artifact_name</cite>, <cite>subscriber_artifact_name</cite>, <cite>orion_ip</cite>, and <cite>project_name</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Artifact Initialization</strong>:</dt><dd><ul class="simple">
+<li><p>Initialize the <cite>PublisherArtifact</cite> with its Jabber ID, password, and payload.</p></li>
+<li><p>Initialize the <cite>InserterArtifact</cite> with its Jabber ID, password, the publisher’s Jabber ID, Orion IP, project name, and JSON template.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Artifact Setup</strong>:</dt><dd><ul class="simple">
+<li><p>Start both the publisher and subscriber artifacts.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<p>This example demonstrates how to configure, initialize, and run the <cite>ContextBrokerInserter</cite> in conjunction with a <cite>PublisherArtifact</cite> to publish and insert data into an Orion Context Broker.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This example requires a configured Context Broker on a server to function properly.
+The example is not standalone and depends on a FIWARE Context Broker and a MongoDB database.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spade_artifact.common.readers.html" class="btn btn-neutral float-left" title="spade_artifact.common.readers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Javi Palanca.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

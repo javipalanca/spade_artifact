@@ -1,0 +1,37 @@
+spade\_artifact package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   spade_artifact.common
+
+Submodules
+----------
+
+spade\_artifact.agent module
+----------------------------
+
+.. automodule:: spade_artifact.agent
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+spade\_artifact.artifact module
+-------------------------------
+
+.. automodule:: spade_artifact.artifact
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: spade_artifact
+   :members:
+   :show-inheritance:
+   :undoc-members:

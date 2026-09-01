@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; SPADE Artifact 0.3.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SPADE Artifact
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">spade-artifact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readers.html">Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SPADE Artifact</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a plugin for the <a class="reference external" href="https://github.com/javipalanca/spade">SPADE</a> agent platform. Please visit the
+<a class="reference external" href="https://spade-mas.readthedocs.io">SPADE’s documentation</a> to know more about this platform.</p>
+</div>
+<p>To use spade-artifact in a project you can follow the next example, which implements an artifact that periodically emits
+random numbers only if any contact is online:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">spade_artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactMixin</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RandomGeneratorArtifact</span><span class="p">(</span><span class="n">Artifact</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_available</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">stanza</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+            <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] Agent </span><span class="si">{}</span><span class="s2"> is available.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">jid</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_subscribed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jid</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+            <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] Agent </span><span class="si">{}</span><span class="s2"> has accepted the subscription.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">jid</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+            <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] Contacts List: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">get_contacts</span><span class="p">())</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jid</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+            <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] Agent </span><span class="si">{}</span><span class="s2"> asked for subscription. Let&#39;s aprove it.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">jid</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">approve</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Approve all contact requests</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">on_subscribe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_subscribe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">on_subscribed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_subscribed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">on_available</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_available</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Publish only if my friends are online</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">get_contacts</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">random_num</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">random_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Publishing </span><span class="si">{</span><span class="n">random_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConsumerAgent</span><span class="p">(</span><span class="n">ArtifactMixin</span><span class="p">,</span> <span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span> <span class="o">=</span> <span class="n">artifact_jid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifact_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received: [</span><span class="si">{</span><span class="n">artifact</span><span class="si">}</span><span class="s2">] -&gt; </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">approve_all</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presence</span><span class="o">.</span><span class="n">set_available</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">focus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifact_callback</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Agent ready&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">XMPP_SERVER</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;XMPP Server&gt;&quot;</span><span class="p">)</span>
+    <span class="n">artifact_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Artifact name&gt; &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">artifact_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+
+    <span class="n">agent_jid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Agent name&gt; &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">XMPP_SERVER</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">agent_passwd</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">ConsumerAgent</span><span class="p">(</span>
+        <span class="n">jid</span><span class="o">=</span><span class="n">agent_jid</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">agent_passwd</span><span class="p">,</span> <span class="n">artifact_jid</span><span class="o">=</span><span class="n">artifact_jid</span>
+    <span class="p">)</span>
+    <span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">artifact</span> <span class="o">=</span> <span class="n">RandomGeneratorArtifact</span><span class="p">(</span><span class="n">artifact_jid</span><span class="p">,</span> <span class="n">artifact_passwd</span><span class="p">)</span>
+
+    <span class="n">future</span> <span class="o">=</span> <span class="n">artifact</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+    <span class="n">artifact</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The example below shows the main features required to build an artifact and to interact with artifacts as an agent.
+As shown, an artifact MUST implement its <code class="docutils literal notranslate"><span class="pre">run</span></code> coroutine where its main functionality is presented (some initial configuration can still be done from the <code class="docutils literal notranslate"><span class="pre">setup</span></code> coroutine).</p>
+<p>An artifact can publish observations by means of the <code class="docutils literal notranslate"><span class="pre">publish</span></code> coroutine as shown in the example.</p>
+<p>Also, an artifact can handle presence messages using the same API as a SPADE agent.</p>
+<p>On the other hand, an agent can interact with artifacts just by inheriting from the ArtifactMixin class. It provides the necessary stuff to be able to focus on an artifact and receive its observations.
+As in the example below, an agent can use the <code class="docutils literal notranslate"><span class="pre">self.artifacts.focus</span></code> coroutine to focus on an artifact. The parameters are the jid of the artifact and the callback method that will receive the observations.
+This callback method will receive as arguments the jid of the artifact publishing the observation and the payload of the observation.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Remember that, when inheriting from Mixins, they MUST be always before the base class (<code class="docutils literal notranslate"><span class="pre">Agent</span></code>).
+E.g. <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">MyAgent(PubSubMixin,</span> <span class="pre">ArtifactMixin,</span> <span class="pre">Agent):</span></code></p>
+</div>
+<p>If an agent wants to stop focusing on an artifact it can use the <code class="docutils literal notranslate"><span class="pre">self.artifacts.ignore</span></code> coroutine with the jid of the artifact.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Javi Palanca.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spade_artifact.common.readers.mongodbreader &mdash; SPADE Artifact 0.3.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SPADE Artifact
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">spade-artifact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readers.html">Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SPADE Artifact</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spade_artifact.common.readers.mongodbreader</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spade_artifact.common.readers.mongodbreader</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">spade_artifact</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">motor.motor_asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncIOMotorClient</span>
+
+
+<div class="viewcode-block" id="MongoDBQueryArtifact">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MongoDBQueryArtifact</span><span class="p">(</span><span class="n">spade_artifact</span><span class="o">.</span><span class="n">Artifact</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An enhanced artifact for executing various MongoDB operations and processing the results.</span>
+
+<span class="sd">    This class supports performing a wide range of database operations on MongoDB, such as find,</span>
+<span class="sd">    insert, update, and delete. It also allows for processing the results and performing actions</span>
+<span class="sd">    at regular intervals.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        connection_uri (str): MongoDB connection URI.</span>
+<span class="sd">        database_name (str): Name of the MongoDB database.</span>
+<span class="sd">        collection_name (str): Name of the MongoDB collection.</span>
+<span class="sd">        operation (str): Type of MongoDB operation to be performed. This attribute supports the following operations:</span>
+<span class="sd">            - &#39;find&#39;: Retrieves documents from the collection that match the criteria specified in `query`. The `query`</span>
+<span class="sd">             should be a dictionary representing the MongoDB query.</span>
+<span class="sd">            - &#39;insert&#39;: Inserts a new document into the collection. The `query` should contain the document to be inserted.</span>
+<span class="sd">            - &#39;update&#39;: Updates documents in the collection that match the criteria. The `query` should be a dictionary</span>
+<span class="sd">             with &#39;filter&#39; and &#39;update&#39; keys, where &#39;filter&#39; defines the criteria to identify documents to be updated,</span>
+<span class="sd">             and &#39;update&#39; specifies the modifications.</span>
+<span class="sd">            - &#39;delete&#39;: Deletes documents from the collection that match the criteria specified in `query`. The `query`</span>
+<span class="sd">             should be a dictionary representing the MongoDB deletion criteria.</span>
+<span class="sd">        query (dict): The MongoDB query or document for operations.</span>
+<span class="sd">        data_processor (Callable): A function to process the data received from the operation.</span>
+<span class="sd">        time_request (int, optional): Time in seconds to wait before re-executing the operation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        connection_uri (str): MongoDB connection URI.</span>
+<span class="sd">        database_name (str): Name of the MongoDB database.</span>
+<span class="sd">        collection_name (str): Name of the MongoDB collection.</span>
+<span class="sd">        operation (str): Type of MongoDB operation.</span>
+<span class="sd">        query (dict): The MongoDB query or document.</span>
+<span class="sd">        jid (str): JID for the spade artifact.</span>
+<span class="sd">        password (str): Password for the spade artifact.</span>
+<span class="sd">        data_processor (Callable, optional): Function to process the operation results. Defaults to None.</span>
+<span class="sd">        time_request (int, optional): Time in seconds for the operation re-execution interval. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection_uri</span><span class="p">,</span>
+        <span class="n">database_name</span><span class="p">,</span>
+        <span class="n">collection_name</span><span class="p">,</span>
+        <span class="n">operation</span><span class="p">,</span>
+        <span class="n">query</span><span class="p">,</span>
+        <span class="n">jid</span><span class="p">,</span>
+        <span class="n">password</span><span class="p">,</span>
+        <span class="n">data_processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_request</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jid</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection_uri</span> <span class="o">=</span> <span class="n">connection_uri</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_name</span> <span class="o">=</span> <span class="n">database_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">=</span> <span class="n">operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data_processor</span>
+            <span class="k">if</span> <span class="n">data_processor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_data_processor</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_request</span> <span class="o">=</span> <span class="n">time_request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mongo_client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MongoDBQueryArtifact.default_data_processor">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.default_data_processor">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default data processor function that passes the data through without any transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The data received from the API request.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list containing the original data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;default data processor started, no data transformation will be done&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MongoDBQueryArtifact.update_query">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.update_query">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method can be overridden to update the API URL as needed.</span>
+
+<span class="sd">        By default, this method does nothing. Developers can override it</span>
+<span class="sd">        to add specific URL update logic for their application.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="MongoDBQueryArtifact.connect_to_database">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.connect_to_database">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect_to_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously establishes a connection to the MongoDB database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mongo_client</span> <span class="o">=</span> <span class="n">AsyncIOMotorClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_uri</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mongo_client</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">database_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MongoDBQueryArtifact.execute_operation">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.execute_operation">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously executes the specified MongoDB operation and fetches the results.</span>
+
+<span class="sd">        This method supports various operations like find, insert, update, and delete.</span>
+<span class="sd">        The operation to be performed is determined by `self.operation`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The data fetched or affected by executing the specified operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_to_database</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;find&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_operation</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;insert&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_operation</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;update&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_operation</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;delete&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_operation</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_find_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cursor</span><span class="o">.</span><span class="n">to_list</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_insert_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">inserted_id</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_update_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">update_many</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">modified_count</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_delete_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">deleted_count</span>
+
+<div class="viewcode-block" id="MongoDBQueryArtifact.run">
+<a class="viewcode-back" href="../../../../spade_artifact.common.readers.html#spade_artifact.common.readers.mongodbreader.MongoDBQueryArtifact.run">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously and periodically executes the MongoDB query based on `self.time_request`.</span>
+
+<span class="sd">        After each iteration, the method waits for `self.time_request` seconds before the next</span>
+<span class="sd">        execution. When the loop ends, it ensures that the client connection to MongoDB is properly closed to release</span>
+<span class="sd">        resources.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">continue_query</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">while</span> <span class="n">continue_query</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_query</span><span class="p">()</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_operation</span><span class="p">()</span>
+                <span class="n">processed_data</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">processed_data</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error has been occurred : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_request</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_request</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">continue_query</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mongo_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mongo_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Javi Palanca.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
