@@ -132,14 +132,17 @@ class Artifact(PubSubMixin, AbstractArtifact):
             await self.pubsub.create(self.pubsub_server, f"{self._node}")
         except IqError as e:
             if e.condition == _DEFAULT_ERROR_TYPES["conflict"]:
-                logger.info(f"Node {self._node} already registered")
+                # Node already exists: treat as non-fatal and continue.
+                logger.info(f"Node {self._node} already registered; reusing it")
             elif e.condition == _DEFAULT_ERROR_TYPES["forbidden"]:
+                # Forbidden is fatal: keep existing behavior and raise.
                 logger.error(
                     f"Artifact {self._node} is not allowed to publish properties."
                 )
+                raise e
             else:
                 logger.error(f"Error creating node: {e.format()}")
-            raise e
+                raise e
 
         await self.setup()
         self._alive.set()
@@ -238,7 +241,6 @@ class Artifact(PubSubMixin, AbstractArtifact):
 
         if self.is_alive():
             await self.client.disconnect()
-            logger.info("Client disconnected.")
 
         self._alive.clear()
 

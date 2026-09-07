@@ -1,6 +1,7 @@
 from loguru import logger
 from spade_pubsub import PubSubMixin
 from slixmpp.stanza.message import Message as SlixmppMessage
+from xml.etree.ElementTree import tostring as _et_tostring
 
 
 class ArtifactMixin(PubSubMixin):
@@ -29,7 +30,10 @@ class ArtifactComponent:
         node = msg["pubsub_event"]["items"]["node"]
         if node in self.focus_callbacks:
             item = msg["pubsub_event"]["items"]["item"]["payload"]
-            jid = msg["pubsub_event"]["items"]["item"]["publisher"]
+            jid = msg["pubsub_event"]["items"]["item"].get("publisher")
+            # Fallback: if publisher is missing/empty use the node identifier
+            if not jid:
+                jid = node
             self.focus_callbacks[node](jid, item.text)
 
     async def focus(self, artifact_jid, callback):
@@ -37,6 +41,8 @@ class ArtifactComponent:
         self.focus_callbacks[artifact_jid] = callback
 
     async def ignore(self, artifact_jid):
-        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, str(artifact_jid))
+        data = await self.agent.pubsub.get_node_subscriptions(self.agent.pubsub_server, str(artifact_jid))
+        subid = data[0] if data else None
+        await self.agent.pubsub.unsubscribe(self.agent.pubsub_server, str(artifact_jid), subid=subid)
         if artifact_jid in self.focus_callbacks:
             del self.focus_callbacks[artifact_jid]
